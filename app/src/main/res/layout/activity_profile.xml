@@ -9,7 +9,7 @@
     tools:context=".ProfileActivity">
 
     <TextView
-        android:id="@+id/profileTv"
+        android:id="@+id/profileTV"
         android:textSize="20sp"
         android:text="Profile"
         android:textColor="@color/blue"
