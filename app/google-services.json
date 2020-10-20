@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "425715877260",
+    "firebase_url": "https://facezz-app.firebaseio.com",
+    "project_id": "facezz-app",
+    "storage_bucket": "facezz-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425715877260:android:6b69c1c00b65d53eb282a9",
+        "android_client_info": {
+          "package_name": "com.example.a2facezzapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "425715877260-44besf56pvd9vtqaieo6kmpp962971ka.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYE7PBEHHt4XE-vWl8j402-cCg7dqheYA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "425715877260-44besf56pvd9vtqaieo6kmpp962971ka.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
