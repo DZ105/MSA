@@ -2,6 +2,7 @@ package com.example.a2facezzapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -25,8 +26,17 @@ public class MainActivity extends AppCompatActivity {
         mRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //star RegisterActivity
+                //start RegisterActivity
                 startActivity(new Intent(MainActivity.this, RegisterActivity.class));
+            }
+        });
+
+        //handle login button click
+        mLoginBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //start LoginActivity
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
             }
         });
     }
