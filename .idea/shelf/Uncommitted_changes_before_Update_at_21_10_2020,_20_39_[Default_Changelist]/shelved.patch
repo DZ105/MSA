@@ -1,0 +1,970 @@
+Index: app/src/main/java/com/example/a2facezzapp/RegisterActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.a2facezzapp;\n\nimport androidx.annotation.NonNull;\nimport androidx.appcompat.app.ActionBar;\nimport androidx.appcompat.app.AppCompatActivity;\n\nimport android.content.Intent;\nimport android.os.Bundle;\nimport android.util.Patterns;\nimport android.view.View;\nimport android.widget.Button;\nimport android.widget.EditText;\nimport android.widget.ProgressBar;\nimport android.widget.Toast;\n\nimport com.google.android.gms.tasks.OnCompleteListener;\nimport com.google.android.gms.tasks.OnFailureListener;\nimport com.google.android.gms.tasks.Task;\nimport com.google.firebase.auth.AuthResult;\nimport com.google.firebase.auth.FirebaseAuth;\nimport com.google.firebase.auth.FirebaseUser;\nimport com.google.firebase.database.DatabaseReference;\nimport com.google.firebase.database.FirebaseDatabase;\n\nimport java.util.HashMap;\n\npublic class RegisterActivity extends AppCompatActivity {\n    //views\n    EditText mEmailInput, mPasswordInput;\n    Button mRegisterBtn;\n\n    //displaying a progress bar while registering\n    ProgressBar progressBar;\n\n//    declare an instance of FirebaseAuth\n    private FirebaseAuth mAuth;\n\n    @Override\n    protected void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        setContentView(R.layout.activity_register);\n\n        //Actionbar and its title\n        ActionBar actionBar = getSupportActionBar();\n        actionBar.setTitle(\"Create account\");\n\n        //enable back button\n        actionBar.setDisplayHomeAsUpEnabled(true);\n        actionBar.setDisplayShowHomeEnabled(true);\n\n        //initialize the activity\n        mEmailInput = findViewById(R.id.emailInput);\n        mPasswordInput = findViewById(R.id.passwordInput);\n        mRegisterBtn = findViewById(R.id.registerBtn);\n        progressBar = new ProgressBar(this);\n\n        //initialize firebase auth\n        mAuth = FirebaseAuth.getInstance();\n\n        //handle register button\n        mRegisterBtn.setOnClickListener(new View.OnClickListener() {\n            @Override\n            public void onClick(View view) {\n                //input email and password\n                String email = mEmailInput.getText().toString().trim();\n                String password = mPasswordInput.getText().toString().trim();\n\n                //validate\n                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {\n                    //set error and focus email input box\n                    mEmailInput.setError(\"Invalid email\");\n                    mEmailInput.setFocusable(true);\n                }\n                else if (password.length() < 6){\n                    //set error and focus password input box\n                    mPasswordInput.setError(\"Password length should be at least 6 characters\");\n                    mPasswordInput.setFocusable(true);\n                }\n                else {\n                    //register the user\n                    registerUser(email, password);\n                }\n            }\n        });\n\n    }\n\n    private void registerUser(String email, String password) {\n        //email and password are valid, show progress bar and start registering the user\n\n        mAuth.createUserWithEmailAndPassword(email, password)\n                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {\n                    @Override\n                    public void onComplete(@NonNull Task<AuthResult> task) {\n                        if (task.isSuccessful()) {\n                            // Sign in success, start register activity.\n                            FirebaseUser user = mAuth.getCurrentUser();\n                            String email = user.getEmail();\n                            String uid = user.getUid();\n\n                            HashMap<Object, String> hashMap = new HashMap<>();\n                            //put info in hashmap\n                            hashMap.put(\"email\", email);\n                            hashMap.put(\"uid\", uid);\n                            hashMap.put(\"name\", \"\"); //will add later (e.g. edit profile)\n                            hashMap.put(\"phone\", \"\");\n                            hashMap.put(\"image\", \"\");\n\n                            //firebase database instance\n                            FirebaseDatabase database = FirebaseDatabase.getInstance();\n                            //path to store user data named \"Users\"\n                            DatabaseReference reference = database.getReference(\"Users\");\n                            //put data within hashmap to database\n                            reference.child(uid).setValue(hashMap);\n                            Toast.makeText(RegisterActivity.this, \"Registered...\\n\" + user.getEmail(), Toast.LENGTH_SHORT).show();\n                            startActivity(new Intent(RegisterActivity.this, DashboardActivity.class));\n                            finish();\n                        } else {\n                            // If sign in fails, display a message to the user.\n\n                            Toast.makeText(RegisterActivity.this, \"Authentication failed.\",\n                                    Toast.LENGTH_SHORT).show();\n\n                        }\n                    }\n                }).addOnFailureListener(new OnFailureListener() {\n            @Override\n            public void onFailure(@NonNull Exception e) {\n                //error and show the error message\n                Toast.makeText(RegisterActivity.this, \"\"+e.getMessage(), Toast.LENGTH_SHORT).show();\n            }\n        });\n    }\n    @Override\n    public boolean onSupportNavigateUp() {\n        onBackPressed();\n        return super.onSupportNavigateUp();\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/a2facezzapp/RegisterActivity.java	(revision 62d0c30cf0430523feb34a0382967ce3afe39f08)
++++ app/src/main/java/com/example/a2facezzapp/RegisterActivity.java	(date 1603299494000)
+@@ -4,13 +4,17 @@
+ import androidx.appcompat.app.ActionBar;
+ import androidx.appcompat.app.AppCompatActivity;
+ 
++
+ import android.content.Intent;
++import android.drm.DrmStore;
+ import android.os.Bundle;
++import android.util.Log;
+ import android.util.Patterns;
+ import android.view.View;
+ import android.widget.Button;
+ import android.widget.EditText;
+ import android.widget.ProgressBar;
++import android.widget.TextView;
+ import android.widget.Toast;
+ 
+ import com.google.android.gms.tasks.OnCompleteListener;
+@@ -28,6 +32,7 @@
+     //views
+     EditText mEmailInput, mPasswordInput;
+     Button mRegisterBtn;
++    TextView mHaveAccount;
+ 
+     //displaying a progress bar while registering
+     ProgressBar progressBar;
+@@ -53,6 +58,7 @@
+         mPasswordInput = findViewById(R.id.passwordInput);
+         mRegisterBtn = findViewById(R.id.registerBtn);
+         progressBar = new ProgressBar(this);
++        mHaveAccount = findViewById(R.id.have_accountTV);
+ 
+         //initialize firebase auth
+         mAuth = FirebaseAuth.getInstance();
+@@ -82,7 +88,13 @@
+                 }
+             }
+         });
+-
++        //handle login textView click listener
++        mHaveAccount.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View view) {
++                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
++            }
++        });
+     }
+ 
+     private void registerUser(String email, String password) {
+@@ -95,6 +107,7 @@
+                         if (task.isSuccessful()) {
+                             // Sign in success, start register activity.
+                             FirebaseUser user = mAuth.getCurrentUser();
++
+                             String email = user.getEmail();
+                             String uid = user.getUid();
+ 
+Index: app/src/main/java/com/example/a2facezzapp/DashboardActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.a2facezzapp;\n\nimport androidx.annotation.NonNull;\nimport androidx.appcompat.app.ActionBar;\nimport androidx.appcompat.app.AppCompatActivity;\nimport androidx.fragment.app.FragmentTransaction;\n\nimport android.os.Bundle;\nimport android.view.MenuItem;\n\nimport com.google.android.material.bottomnavigation.BottomNavigationView;\nimport com.google.firebase.auth.FirebaseAuth;\n\npublic class DashboardActivity extends AppCompatActivity {\n    FirebaseAuth firebaseAuth;\n    ActionBar actionBar;\n    @Override\n    protected void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        setContentView(R.layout.activity_dashboard);\n\n        //Actionbar and its title\n        actionBar = getSupportActionBar();\n        actionBar.setTitle(\"Profile\");\n\n        //init\n        firebaseAuth = FirebaseAuth.getInstance();\n\n        //bottom navigator\n        BottomNavigationView navigationView = findViewById(R.id.navigation);\n        navigationView.setOnNavigationItemSelectedListener(selectedListener);\n\n        //home fragment transaction default\n        actionBar.setTitle(\"Home\");//change actionbar title\n        HomeFragment fragment1 = new HomeFragment();\n        FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();\n        ft1.replace(R.id.container, fragment1, \"\");\n        ft1.commit();\n    }\n\n    private BottomNavigationView.OnNavigationItemSelectedListener selectedListener =\n            new BottomNavigationView.OnNavigationItemSelectedListener() {\n                @Override\n                public boolean onNavigationItemSelected(@NonNull MenuItem item) {\n                    //handle item clicks\n                    switch (item.getItemId()) {\n                        case R.id.nav_home:\n                            //home fragment transaction\n                            actionBar.setTitle(\"Home\");//change actionbar title\n                            HomeFragment fragment1 = new HomeFragment();\n                            FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();\n                            ft1.replace(R.id.content, fragment1, \"\");\n                            ft1.commit();\n                            return true;\n                        case R.id.nav_profile:\n                            //profile fragment transaction\n                            actionBar.setTitle(\"Profile\");//change actionbar title\n                            ProfileFragment fragment2 = new ProfileFragment();\n                            FragmentTransaction ft2 = getSupportFragmentManager().beginTransaction();\n                            ft2.replace(R.id.content, fragment2, \"\");\n                            ft2.commit();\n                            return true;\n                        case R.id.nav_users:\n                            //users fragment transaction\n                            actionBar.setTitle(\"Users\");//change actionbar title\n                            UsersFragment fragment3 = new UsersFragment();\n                            FragmentTransaction ft3 = getSupportFragmentManager().beginTransaction();\n                            ft3.replace(R.id.content, fragment3, \"\");\n                            ft3.commit();\n                            return true;\n                    }\n\n\n                    return false;\n                }\n            };\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/a2facezzapp/DashboardActivity.java	(revision 62d0c30cf0430523feb34a0382967ce3afe39f08)
++++ app/src/main/java/com/example/a2facezzapp/DashboardActivity.java	(date 1603299782000)
+@@ -5,15 +5,24 @@
+ import androidx.appcompat.app.AppCompatActivity;
+ import androidx.fragment.app.FragmentTransaction;
+ 
++import android.content.Intent;
+ import android.os.Bundle;
++import android.view.Menu;
+ import android.view.MenuItem;
++import android.widget.TextView;
+ 
+ import com.google.android.material.bottomnavigation.BottomNavigationView;
+ import com.google.firebase.auth.FirebaseAuth;
++import com.google.firebase.auth.FirebaseUser;
+ 
+ public class DashboardActivity extends AppCompatActivity {
++
+     FirebaseAuth firebaseAuth;
++
+     ActionBar actionBar;
++    //views
++    TextView mProfileTV;
++
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+@@ -25,6 +34,7 @@
+ 
+         //init
+         firebaseAuth = FirebaseAuth.getInstance();
++        mProfileTV = findViewById(R.id.profileTV);
+ 
+         //bottom navigator
+         BottomNavigationView navigationView = findViewById(R.id.navigation);
+@@ -49,7 +59,7 @@
+                             actionBar.setTitle("Home");//change actionbar title
+                             HomeFragment fragment1 = new HomeFragment();
+                             FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();
+-                            ft1.replace(R.id.content, fragment1, "");
++                            ft1.replace(R.id.container, fragment1, "");
+                             ft1.commit();
+                             return true;
+                         case R.id.nav_profile:
+@@ -57,7 +67,7 @@
+                             actionBar.setTitle("Profile");//change actionbar title
+                             ProfileFragment fragment2 = new ProfileFragment();
+                             FragmentTransaction ft2 = getSupportFragmentManager().beginTransaction();
+-                            ft2.replace(R.id.content, fragment2, "");
++                            ft2.replace(R.id.container, fragment2, "");
+                             ft2.commit();
+                             return true;
+                         case R.id.nav_users:
+@@ -65,7 +75,7 @@
+                             actionBar.setTitle("Users");//change actionbar title
+                             UsersFragment fragment3 = new UsersFragment();
+                             FragmentTransaction ft3 = getSupportFragmentManager().beginTransaction();
+-                            ft3.replace(R.id.content, fragment3, "");
++                            ft3.replace(R.id.container, fragment3, "");
+                             ft3.commit();
+                             return true;
+                     }
+@@ -74,4 +84,46 @@
+                     return false;
+                 }
+             };
++
++    private void checkUserStatus() {
++        //get current user
++        FirebaseUser user = firebaseAuth.getCurrentUser();
++        if(user != null) {
++            //if it is sign in stay here
++            //set email of logged in user
++            mProfileTV.setText(user.getEmail());
++        }else {
++            //if it is not sign in, go to main activity
++            startActivity(new Intent(DashboardActivity.this, MainActivity.class));
++            finish();
++        }
++
++    }
++
++    @Override
++    protected void onStart() {
++        //check on start of app
++        checkUserStatus();
++        super.onStart();
++    }
++
++    //options menu
++
++    @Override
++    public boolean onCreateOptionsMenu(Menu menu) {
++        getMenuInflater().inflate(R.menu.menu_main, menu);
++        return super.onCreateOptionsMenu(menu);
++    }
++
++    //handle menu
++
++    @Override
++    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
++        int id = item.getItemId();
++        if(id == R.id.action_logout) {
++            firebaseAuth.signOut();
++            checkUserStatus();
++        }
++        return super.onOptionsItemSelected(item);
++    }
+ }
+\ No newline at end of file
+Index: app/src/main/java/com/example/a2facezzapp/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.a2facezzapp;\n\nimport androidx.appcompat.app.AppCompatActivity;\n\nimport android.content.Intent;\nimport android.os.Bundle;\nimport android.view.View;\nimport android.widget.Button;\n\npublic class MainActivity extends AppCompatActivity {\n\n    //views\n    Button mRegisterBtn, mLoginBtn;\n\n    @Override\n    protected void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        setContentView(R.layout.activity_main);\n\n        //initialize views\n        mRegisterBtn = findViewById(R.id.register_btn);\n        mLoginBtn = findViewById(R.id.login_btn);\n\n        //handle register button click\n        mRegisterBtn.setOnClickListener(new View.OnClickListener() {\n            @Override\n            public void onClick(View view) {\n                //star RegisterActivity\n                startActivity(new Intent(MainActivity.this, RegisterActivity.class));\n            }\n        });\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/a2facezzapp/MainActivity.java	(revision 62d0c30cf0430523feb34a0382967ce3afe39f08)
++++ app/src/main/java/com/example/a2facezzapp/MainActivity.java	(date 1603298230000)
+@@ -2,6 +2,7 @@
+ 
+ import androidx.appcompat.app.AppCompatActivity;
+ 
++import android.app.Activity;
+ import android.content.Intent;
+ import android.os.Bundle;
+ import android.view.View;
+@@ -25,9 +26,18 @@
+         mRegisterBtn.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View view) {
+-                //star RegisterActivity
++                //start RegisterActivity
+                 startActivity(new Intent(MainActivity.this, RegisterActivity.class));
+             }
+         });
++
++        //handle login button click
++        mLoginBtn.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View view) {
++                //start LoginActivity
++                startActivity(new Intent(MainActivity.this, LoginActivity.class));
++            }
++        });
+     }
+ }
+\ No newline at end of file
+Index: app/src/main/res/layout/activity_login.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_login.xml	(date 1603298230000)
++++ app/src/main/res/layout/activity_login.xml	(date 1603298230000)
+@@ -0,0 +1,76 @@
++<?xml version="1.0" encoding="utf-8"?>
++<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    tools:context=".LoginActivity"
++    android:padding="20dp"
++    tools:ignore="MissingClass">
++
++    <!--Label login-->
++    <TextView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:textAlignment="center"
++        android:text="Login"
++        android:textColor="@color/white"
++        android:textSize="25dp"
++        android:background="@color/blue"
++        />
++    <!--Input email-->
++    <com.google.android.material.textfield.TextInputLayout
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:layout_centerHorizontal="true"
++        android:layout_centerVertical="true"
++        android:id="@+id/emailBox">
++        <com.google.android.material.textfield.TextInputEditText
++            android:id="@+id/emailInput"
++            android:inputType="textEmailAddress"
++            android:hint="Enter your email here"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            />
++    </com.google.android.material.textfield.TextInputLayout>
++    <!--Input password-->
++    <com.google.android.material.textfield.TextInputLayout
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:layout_centerHorizontal="true"
++        android:layout_centerVertical="true"
++        android:id="@+id/passwordBox"
++        android:layout_below="@id/emailBox"
++        android:paddingTop="10dp"
++        app:passwordToggleEnabled="true">
++        <com.google.android.material.textfield.TextInputEditText
++            android:id="@+id/passwordInput"
++            android:inputType="textPassword"
++            android:hint="Enter your password here"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            />
++    </com.google.android.material.textfield.TextInputLayout>
++    <!--Button register user-->
++    <Button
++        android:id="@+id/loginBtn"
++        android:text="Login"
++        android:layout_below="@id/passwordBox"
++        android:layout_centerHorizontal="true"
++        android:backgroundTint="@color/blue"
++        style="@style/Widget.AppCompat.Button.Colored"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"/>
++
++    <!--Click and go to register-->
++    <TextView
++        android:id="@+id/no_accountTV"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:textAlignment="center"
++        android:text="You don't have an account? Register"
++        android:layout_below="@id/loginBtn"
++        android:layout_marginTop="30dp"
++        android:textColor="@color/black"
++        />
++</RelativeLayout>
+\ No newline at end of file
+Index: app/src/main/res/layout/activity_register.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<RelativeLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    tools:context=\".RegisterActivity\"\n    android:padding=\"20dp\"\n    tools:ignore=\"MissingClass\">\n\n    <!--Label register-->\n    <TextView\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:textAlignment=\"center\"\n        android:text=\"Registration\"\n        android:textColor=\"@color/white\"\n        android:textSize=\"25dp\"\n        android:background=\"@color/blue\"\n        />\n    <!--Input email-->\n    <com.google.android.material.textfield.TextInputLayout\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_centerHorizontal=\"true\"\n        android:layout_centerVertical=\"true\"\n        android:id=\"@+id/emailBox\">\n            <com.google.android.material.textfield.TextInputEditText\n            android:id=\"@+id/emailInput\"\n            android:inputType=\"textEmailAddress\"\n            android:hint=\"Enter your email here\"\n            android:layout_width=\"match_parent\"\n            android:layout_height=\"wrap_content\"\n            />\n    </com.google.android.material.textfield.TextInputLayout>\n    <!--Input password-->\n    <com.google.android.material.textfield.TextInputLayout\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_centerHorizontal=\"true\"\n        android:layout_centerVertical=\"true\"\n        android:id=\"@+id/passwordBox\"\n        android:layout_below=\"@id/emailBox\"\n        android:paddingTop=\"10dp\"\n        app:passwordToggleEnabled=\"true\">\n        <com.google.android.material.textfield.TextInputEditText\n            android:id=\"@+id/passwordInput\"\n            android:inputType=\"textPassword\"\n            android:hint=\"Enter your password here\"\n            android:layout_width=\"match_parent\"\n            android:layout_height=\"wrap_content\"\n            />\n    </com.google.android.material.textfield.TextInputLayout>\n    <!--Button register user-->\n    <Button\n        android:id=\"@+id/registerBtn\"\n        android:text=\"Register\"\n        android:layout_below=\"@id/passwordBox\"\n        android:layout_centerHorizontal=\"true\"\n        android:backgroundTint=\"@color/blue\"\n        style=\"@style/Widget.AppCompat.Button.Colored\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"/>\n\n</RelativeLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_register.xml	(revision 62d0c30cf0430523feb34a0382967ce3afe39f08)
++++ app/src/main/res/layout/activity_register.xml	(date 1603298230000)
+@@ -62,4 +62,15 @@
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"/>
+ 
++    <!--Click and go to Login-->
++    <TextView
++        android:id="@+id/have_accountTV"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:textAlignment="center"
++        android:text="Do you already have an account? Login"
++        android:layout_below="@id/registerBtn"
++        android:layout_marginTop="30dp"
++        android:textColor="@color/black"
++        />
+ </RelativeLayout>
+\ No newline at end of file
+Index: gradle/wrapper/gradle-wrapper.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#Tue Oct 20 19:30:38 EEST 2020\ndistributionBase=GRADLE_USER_HOME\ndistributionPath=wrapper/dists\nzipStoreBase=GRADLE_USER_HOME\nzipStorePath=wrapper/dists\ndistributionUrl=https\\://services.gradle.org/distributions/gradle-6.5-all.zip\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- gradle/wrapper/gradle-wrapper.properties	(revision 62d0c30cf0430523feb34a0382967ce3afe39f08)
++++ gradle/wrapper/gradle-wrapper.properties	(date 1603298426000)
+@@ -1,4 +1,4 @@
+-#Tue Oct 20 19:30:38 EEST 2020
++#Tue Oct 20 21:58:15 EEST 2020
+ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+ zipStoreBase=GRADLE_USER_HOME
+Index: app/src/main/java/com/example/a2facezzapp/LoginActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/a2facezzapp/LoginActivity.java	(date 1603299872000)
++++ app/src/main/java/com/example/a2facezzapp/LoginActivity.java	(date 1603299872000)
+@@ -0,0 +1,144 @@
++package com.example.a2facezzapp;
++
++import androidx.annotation.NonNull;
++import androidx.appcompat.app.ActionBar;
++import androidx.appcompat.app.AppCompatActivity;
++
++import android.content.Intent;
++import android.os.Bundle;
++import android.util.Log;
++import android.util.Patterns;
++import android.view.Menu;
++import android.view.MenuItem;
++import android.view.View;
++import android.widget.Button;
++import android.widget.EditText;
++import android.widget.TextView;
++import android.widget.Toast;
++
++import com.google.android.gms.tasks.OnCompleteListener;
++import com.google.android.gms.tasks.OnFailureListener;
++import com.google.android.gms.tasks.Task;
++import com.google.firebase.auth.AuthResult;
++import com.google.firebase.auth.FirebaseAuth;
++import com.google.firebase.auth.FirebaseUser;
++import com.google.firebase.database.DatabaseReference;
++import com.google.firebase.database.FirebaseDatabase;
++
++import java.util.HashMap;
++
++public class LoginActivity extends AppCompatActivity {
++
++    //views
++    EditText mEmailInput, mPasswordInput;
++    Button mLoginBtn;
++    TextView noAccountTV;
++
++    //firebase
++    private FirebaseAuth mAuth;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_login);
++
++        //Actionbar and its title
++        ActionBar actionBar = getSupportActionBar();
++        actionBar.setTitle("Login");
++
++        //enable back button
++        actionBar.setDisplayHomeAsUpEnabled(true);
++        actionBar.setDisplayShowHomeEnabled(true);
++
++        //init
++        mEmailInput = findViewById(R.id.emailInput);
++        mPasswordInput = findViewById(R.id.passwordInput);
++        mLoginBtn = findViewById(R.id.loginBtn);
++        noAccountTV = findViewById(R.id.no_accountTV);
++
++        mAuth = FirebaseAuth.getInstance();
++
++        //click on login button
++        mLoginBtn.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View view) {
++                //input email and password
++                String email = mEmailInput.getText().toString().trim();
++                String password = mPasswordInput.getText().toString().trim();
++
++                //validate
++                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
++                    //set error and focus email input box
++                    mEmailInput.setError("Invalid email");
++                    mEmailInput.setFocusable(true);
++                }else {
++                    //if email is valid, login
++                    loginUser(email, password);
++                }
++            }
++        });
++
++        //if user click no account
++        noAccountTV.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View view) {
++                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
++                finish();
++            }
++        });
++    }
++
++    private void loginUser(String email, String password) {
++        mAuth.signInWithEmailAndPassword(email, password)
++                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
++                    @Override
++                    public void onComplete(@NonNull Task<AuthResult> task) {
++                        if (task.isSuccessful()) {
++                            // Sign in success, update UI with the signed-in user's information
++                            FirebaseUser user = mAuth.getCurrentUser();
++
++                            String email = user.getEmail();
++                            String uid = user.getUid();
++
++                            HashMap<Object, String> hashMap = new HashMap<>();
++                            //put info in hashmap
++                            hashMap.put("email", email);
++                            hashMap.put("uid", uid);
++                            hashMap.put("name", ""); //will add later (e.g. edit profile)
++                            hashMap.put("phone", "");
++                            hashMap.put("image", "");
++
++                            //firebase database instance
++                            FirebaseDatabase database = FirebaseDatabase.getInstance();
++                            //path to store user data named "Users"
++                            DatabaseReference reference = database.getReference("Users");
++                            //put data within hashmap to database
++                            reference.child(uid).setValue(hashMap);
++                            //if user is logged in, start profile activity
++                            startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
++                            finish();
++                        } else {
++                            // If sign in fails, display a message to the user.
++                            Toast.makeText(LoginActivity.this, "Authentication failed.",
++                                    Toast.LENGTH_SHORT).show();
++
++                        }
++                    }
++                }).addOnFailureListener(new OnFailureListener() {
++            @Override
++            public void onFailure(@NonNull Exception e) {
++                //show error
++                Toast.makeText(LoginActivity.this, "" + e.getMessage(),
++                        Toast.LENGTH_SHORT).show();
++            }
++        });
++    }
++
++    @Override
++    public boolean onSupportNavigateUp() {
++        onBackPressed();
++        return super.onSupportNavigateUp();
++    }
++
++
++}
+\ No newline at end of file
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    package=\"com.example.a2facezzapp\">\n\n    <application\n        android:allowBackup=\"true\"\n        android:icon=\"@mipmap/ic_launcher\"\n        android:label=\"@string/app_name\"\n        android:roundIcon=\"@mipmap/ic_launcher_round\"\n        android:supportsRtl=\"true\"\n        android:theme=\"@style/Theme.2facezzApp\">\n        <activity android:name=\".DashboardActivity\">\n        </activity>\n        <activity android:name=\".RegisterActivity\" />\n        <activity android:name=\".MainActivity\">\n            <intent-filter>\n                <action android:name=\"android.intent.action.MAIN\" />\n\n                <category android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n    </application>\n\n</manifest>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/AndroidManifest.xml	(revision 62d0c30cf0430523feb34a0382967ce3afe39f08)
++++ app/src/main/AndroidManifest.xml	(date 1603298424000)
+@@ -9,16 +9,16 @@
+         android:roundIcon="@mipmap/ic_launcher_round"
+         android:supportsRtl="true"
+         android:theme="@style/Theme.2facezzApp">
+-        <activity android:name=".DashboardActivity">
+-        </activity>
+-        <activity android:name=".RegisterActivity" />
+-        <activity android:name=".MainActivity">
++        <activity android:name=".LoginActivity"></activity>
++        <activity android:name=".ProfileActivity">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+ 
+                 <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+         </activity>
++        <activity android:name=".RegisterActivity" />
++        <activity android:name=".MainActivity"></activity>
+     </application>
+ 
+ </manifest>
+\ No newline at end of file
+Index: app/src/main/res/menu/menu_main.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/menu/menu_main.xml	(date 1603298230000)
++++ app/src/main/res/menu/menu_main.xml	(date 1603298230000)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<menu xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:id="@+id/action_logout"
++        android:title="Logout"
++        />
++</menu>
+\ No newline at end of file
+Index: app/src/main/java/com/example/a2facezzapp/ProfileActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/a2facezzapp/ProfileActivity.java	(date 1603298230000)
++++ app/src/main/java/com/example/a2facezzapp/ProfileActivity.java	(date 1603298230000)
+@@ -0,0 +1,79 @@
++package com.example.a2facezzapp;
++
++import androidx.annotation.NonNull;
++import androidx.appcompat.app.ActionBar;
++import androidx.appcompat.app.AppCompatActivity;
++
++import android.content.Intent;
++import android.os.Bundle;
++import android.view.Menu;
++import android.view.MenuItem;
++import android.widget.TextView;
++
++import com.google.firebase.auth.FirebaseAuth;
++import com.google.firebase.auth.FirebaseUser;
++
++public class ProfileActivity extends AppCompatActivity {
++
++    //views
++    TextView mProfileTV;
++
++    //firebase authentication
++    FirebaseAuth firebaseAuth;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_profile);
++
++        //Actionbar and its title
++        ActionBar actionBar = getSupportActionBar();
++        actionBar.setTitle("Profile");
++
++        //initialize
++        firebaseAuth = FirebaseAuth.getInstance();
++        mProfileTV = findViewById(R.id.profileTV);
++    }
++
++    private void checkUserStatus() {
++        //get current user
++        FirebaseUser user = firebaseAuth.getCurrentUser();
++        if(user != null) {
++            //if it is sign in stay here
++            //set email of logged in user
++            mProfileTV.setText(user.getEmail());
++        }else {
++            //if it is not sign in, go to main activity
++            startActivity(new Intent(ProfileActivity.this, MainActivity.class));
++            finish();
++        }
++
++    }
++
++    @Override
++    protected void onStart() {
++        //check on start of app
++        checkUserStatus();
++        super.onStart();
++    }
++
++    //options menu
++
++    @Override
++    public boolean onCreateOptionsMenu(Menu menu) {
++        getMenuInflater().inflate(R.menu.menu_main, menu);
++        return super.onCreateOptionsMenu(menu);
++    }
++
++    //handle menu
++
++    @Override
++    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
++        int id = item.getItemId();
++        if(id == R.id.action_logout) {
++            firebaseAuth.signOut();
++            checkUserStatus();
++        }
++        return super.onOptionsItemSelected(item);
++    }
++}
+\ No newline at end of file
+Index: app/src/main/res/layout/activity_profile.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_profile.xml	(date 1603298422000)
++++ app/src/main/res/layout/activity_profile.xml	(date 1603298422000)
+@@ -0,0 +1,19 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:orientation="vertical"
++    android:gravity="center"
++    tools:context=".ProfileActivity">
++
++    <TextView
++        android:id="@+id/profileTV"
++        android:textSize="20sp"
++        android:text="Profile"
++        android:textColor="@color/blue"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"/>
++
++</LinearLayout>
+\ No newline at end of file
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AndroidLayouts\">\n    <shared>\n      <config />\n    </shared>\n  </component>\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"NONE\" />\n  </component>\n  <component name=\"BranchesTreeState\">\n    <expand>\n      <path>\n        <item name=\"ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\n        <item name=\"LOCAL_ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\n      </path>\n      <path>\n        <item name=\"ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\n        <item name=\"REMOTE_ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\n      </path>\n      <path>\n        <item name=\"ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\n        <item name=\"REMOTE_ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\n        <item name=\"GROUP_NODE:origin\" type=\"e8cecc67:BranchNodeDescriptor\" />\n      </path>\n    </expand>\n    <select>\n      <path>\n        <item name=\"ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\n        <item name=\"LOCAL_ROOT\" type=\"e8cecc67:BranchNodeDescriptor\" />\n        <item name=\"BRANCH:master\" type=\"e8cecc67:BranchNodeDescriptor\" />\n      </path>\n    </select>\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"8fe50a6d-6717-4ae5-bac9-9d36fc0e6370\" name=\"Default Changelist\" comment=\"\">\n      <change afterPath=\"$PROJECT_DIR$/.idea/assetWizardSettings.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_annotation_annotation_experimental_1_0_0_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_asynclayoutinflater_asynclayoutinflater_1_0_0_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_documentfile_documentfile_1_0_0_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_legacy_legacy_support_core_ui_1_0_0_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_legacy_legacy_support_core_utils_1_0_0_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_legacy_legacy_support_v4_1_0_0_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_media_media_1_0_0_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_print_print_1_0_0_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_slidingpanelayout_slidingpanelayout_1_0_0_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_swiperefreshlayout_swiperefreshlayout_1_0_0_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_auth_19_4_0_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_common_19_3_1_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_database_19_5_0_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_database_collection_17_0_1_aar.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/HomeFragment.java\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/ProfileFragment.java\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/UsersFragment.java\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/drawable-anydpi/ic_home_black.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/drawable-anydpi/ic_profile_black.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/drawable-anydpi/ic_users_black.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/drawable-hdpi/ic_home_black.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/drawable-hdpi/ic_users_black.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/drawable-mdpi/ic_home_black.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/drawable-mdpi/ic_profile_black.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/drawable-mdpi/ic_users_black.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/drawable-xhdpi/ic_home_black.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/drawable-xhdpi/ic_profile_black.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/drawable-xhdpi/ic_users_black.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/drawable-xxhdpi/ic_home_black.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/drawable-xxhdpi/ic_users_black.png\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/layout/fragment_profile.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/layout/fragment_users.xml\" afterDir=\"false\" />\n      <change afterPath=\"$PROJECT_DIR$/app/src/main/res/menu/menu_nav.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.lock\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.lock\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.bin\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.bin\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.lock\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.lock\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.gradle/checksums/checksums.lock\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.gradle/checksums/checksums.lock\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/caches/build_file_checksums.ser\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/caches/build_file_checksums.ser\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_appcompat_appcompat_1_1_0_aar.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_appcompat_appcompat_1_2_0_aar.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_appcompat_appcompat_resources_1_1_0_aar.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_appcompat_appcompat_resources_1_2_0_aar.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_constraintlayout_constraintlayout_1_1_3_aar.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_constraintlayout_constraintlayout_2_0_2_aar.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_constraintlayout_constraintlayout_solver_1_1_3.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_constraintlayout_constraintlayout_solver_2_0_2.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_core_core_1_1_0_aar.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_core_core_1_3_1_aar.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_core_1_2_0_aar.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_core_1_3_0_aar.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_espresso_espresso_core_3_2_0_aar.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_espresso_espresso_core_3_3_0_aar.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_espresso_espresso_idling_resource_3_2_0_aar.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_espresso_espresso_idling_resource_3_3_0_aar.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_ext_junit_1_1_1_aar.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_ext_junit_1_1_2_aar.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_monitor_1_2_0_aar.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_monitor_1_3_0_aar.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_runner_1_2_0_aar.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_runner_1_3_0_aar.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__com_google_android_material_material_1_1_0_aar.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/libraries/Gradle__com_google_android_material_material_1_2_1_aar.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__com_google_auto_value_auto_value_annotations_1_6_5.xml\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_auth_19_2_0_aar.xml\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_common_19_3_0_aar.xml\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/libraries/Gradle__net_sf_kxml_kxml2_2_3_0.xml\" beforeDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/misc.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/misc.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/modules/app/2facezz_App.app.iml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/modules/app/2facezz_App.app.iml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/build.gradle\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/build.gradle\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/AndroidManifest.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/AndroidManifest.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/ProfileActivity.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/DashboardActivity.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/res/layout/activity_profile.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/res/layout/activity_dashboard.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/app/src/main/res/values/strings.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/app/src/main/res/values/strings.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"ExecutionTargetManager\" SELECTED_TARGET=\"device_and_snapshot_combo_box_target[Pixel_3a_API_30_x86]\" />\n  <component name=\"ExternalProjectsData\">\n    <projectState path=\"$PROJECT_DIR$\">\n      <ProjectState />\n    </projectState>\n  </component>\n  <component name=\"ExternalProjectsManager\">\n    <system id=\"GRADLE\">\n      <state>\n        <projects_view>\n          <tree_state>\n            <expand />\n            <select />\n          </tree_state>\n        </projects_view>\n      </state>\n    </system>\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"resourceFile\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"PREVIOUS_COMMIT_AUTHORS\">\n      <list>\n        <option value=\"daividrus &lt;drus425@gmail.com&gt;\" />\n      </list>\n    </option>\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\n      <map>\n        <entry key=\"$PROJECT_DIR$\" value=\"master\" />\n      </map>\n    </option>\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"ProjectId\" id=\"1j5xz8LLcbRyfqFnZYtDzkc9g7c\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\">\n    <property name=\"ASKED_ADD_EXTERNAL_FILES\" value=\"true\" />\n    <property name=\"ASKED_SHARE_PROJECT_CONFIGURATION_FILES\" value=\"true\" />\n    <property name=\"RunOnceActivity.OpenProjectViewOnStart\" value=\"true\" />\n    <property name=\"RunOnceActivity.ShowReadmeOnStart\" value=\"true\" />\n    <property name=\"SHARE_PROJECT_CONFIGURATION_FILES\" value=\"true\" />\n    <property name=\"android.sdk.path\" value=\"$USER_HOME$/AppData/Local/Android/Sdk\" />\n    <property name=\"last_directory_selection\" value=\"$PROJECT_DIR$/app/src/main/res/drawable\" />\n    <property name=\"last_opened_file_path\" value=\"$PROJECT_DIR$\" />\n    <property name=\"settings.editor.selected.configurable\" value=\"gradle.compiler\" />\n  </component>\n  <component name=\"RecentsManager\">\n    <key name=\"android.template.691890977\">\n      <recent name=\"com.example.a2facezzapp\" />\n    </key>\n    <key name=\"CopyFile.RECENT_KEYS\">\n      <recent name=\"C:\\Users\\David\\AndroidStudioProjects\\2facezzApp\\app\\src\\main\\res\\drawable\" />\n    </key>\n  </component>\n  <component name=\"RunManager\">\n    <configuration name=\"&lt;template&gt;\" type=\"Applet\" default=\"true\" selected=\"false\">\n      <option name=\"MAIN_CLASS_NAME\" />\n      <option name=\"HTML_FILE_NAME\" />\n      <option name=\"HTML_USED\" value=\"false\" />\n      <option name=\"WIDTH\" value=\"400\" />\n      <option name=\"HEIGHT\" value=\"300\" />\n      <option name=\"POLICY_FILE\" value=\"$APPLICATION_HOME_DIR$/bin/appletviewer.policy\" />\n      <option name=\"VM_PARAMETERS\" />\n    </configuration>\n    <configuration default=\"true\" type=\"JUnit\" factoryName=\"JUnit\">\n      <extension name=\"coverage\" enabled=\"false\" merge=\"false\" sample_coverage=\"true\" runner=\"idea\" />\n      <module name=\"\" />\n      <option name=\"ALTERNATIVE_JRE_PATH_ENABLED\" value=\"false\" />\n      <option name=\"ALTERNATIVE_JRE_PATH\" />\n      <option name=\"PACKAGE_NAME\" />\n      <option name=\"MAIN_CLASS_NAME\" />\n      <option name=\"METHOD_NAME\" />\n      <option name=\"TEST_OBJECT\" value=\"class\" />\n      <option name=\"VM_PARAMETERS\" value=\"-ea\" />\n      <option name=\"PARAMETERS\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$MODULE_DIR$\" />\n      <option name=\"ENV_VARIABLES\" />\n      <option name=\"PASS_PARENT_ENVS\" value=\"true\" />\n      <option name=\"TEST_SEARCH_SCOPE\">\n        <value defaultName=\"singleModule\" />\n      </option>\n      <envs />\n      <patterns />\n      <method />\n    </configuration>\n    <configuration name=\"&lt;template&gt;\" type=\"#org.jetbrains.idea.devkit.run.PluginConfigurationType\" default=\"true\" selected=\"false\">\n      <option name=\"VM_PARAMETERS\" value=\"-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea\" />\n    </configuration>\n    <configuration default=\"true\" type=\"AndroidJUnit\" factoryName=\"Android JUnit\">\n      <option name=\"TEST_OBJECT\" value=\"class\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$MODULE_DIR$\" />\n      <method v=\"2\">\n        <option name=\"Android.Gradle.BeforeRunTask\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <configuration name=\"2facezz\" type=\"AndroidRunConfigurationType\" factoryName=\"Android App\" activateToolWindowBeforeRun=\"false\">\n      <module name=\"2facezz_App.app\" />\n      <option name=\"DEPLOY\" value=\"true\" />\n      <option name=\"DEPLOY_APK_FROM_BUNDLE\" value=\"false\" />\n      <option name=\"DEPLOY_AS_INSTANT\" value=\"false\" />\n      <option name=\"ARTIFACT_NAME\" value=\"\" />\n      <option name=\"PM_INSTALL_OPTIONS\" value=\"\" />\n      <option name=\"ALL_USERS\" value=\"true\" />\n      <option name=\"DYNAMIC_FEATURES_DISABLED_LIST\" value=\"\" />\n      <option name=\"ACTIVITY_EXTRA_FLAGS\" value=\"\" />\n      <option name=\"MODE\" value=\"default_activity\" />\n      <option name=\"CLEAR_LOGCAT\" value=\"false\" />\n      <option name=\"SHOW_LOGCAT_AUTOMATICALLY\" value=\"false\" />\n      <option name=\"SKIP_NOOP_APK_INSTALLATIONS\" value=\"true\" />\n      <option name=\"FORCE_STOP_RUNNING_APP\" value=\"true\" />\n      <option name=\"TARGET_SELECTION_MODE\" value=\"DEVICE_AND_SNAPSHOT_COMBO_BOX\" />\n      <option name=\"SELECTED_CLOUD_MATRIX_CONFIGURATION_ID\" value=\"-1\" />\n      <option name=\"SELECTED_CLOUD_MATRIX_PROJECT_ID\" value=\"\" />\n      <option name=\"DEBUGGER_TYPE\" value=\"Auto\" />\n      <Auto>\n        <option name=\"USE_JAVA_AWARE_DEBUGGER\" value=\"false\" />\n        <option name=\"SHOW_STATIC_VARS\" value=\"true\" />\n        <option name=\"WORKING_DIR\" value=\"\" />\n        <option name=\"TARGET_LOGGING_CHANNELS\" value=\"lldb process:gdb-remote packets\" />\n        <option name=\"SHOW_OPTIMIZED_WARNING\" value=\"true\" />\n      </Auto>\n      <Hybrid>\n        <option name=\"USE_JAVA_AWARE_DEBUGGER\" value=\"false\" />\n        <option name=\"SHOW_STATIC_VARS\" value=\"true\" />\n        <option name=\"WORKING_DIR\" value=\"\" />\n        <option name=\"TARGET_LOGGING_CHANNELS\" value=\"lldb process:gdb-remote packets\" />\n        <option name=\"SHOW_OPTIMIZED_WARNING\" value=\"true\" />\n      </Hybrid>\n      <Java />\n      <Native>\n        <option name=\"USE_JAVA_AWARE_DEBUGGER\" value=\"false\" />\n        <option name=\"SHOW_STATIC_VARS\" value=\"true\" />\n        <option name=\"WORKING_DIR\" value=\"\" />\n        <option name=\"TARGET_LOGGING_CHANNELS\" value=\"lldb process:gdb-remote packets\" />\n        <option name=\"SHOW_OPTIMIZED_WARNING\" value=\"true\" />\n      </Native>\n      <Profilers>\n        <option name=\"ADVANCED_PROFILING_ENABLED\" value=\"false\" />\n        <option name=\"STARTUP_PROFILING_ENABLED\" value=\"false\" />\n        <option name=\"STARTUP_CPU_PROFILING_ENABLED\" value=\"false\" />\n        <option name=\"STARTUP_CPU_PROFILING_CONFIGURATION_NAME\" value=\"Sample Java Methods\" />\n        <option name=\"STARTUP_NATIVE_MEMORY_PROFILING_ENABLED\" value=\"false\" />\n        <option name=\"NATIVE_MEMORY_SAMPLE_RATE_BYTES\" value=\"2048\" />\n      </Profilers>\n      <option name=\"DEEP_LINK\" value=\"\" />\n      <option name=\"ACTIVITY_CLASS\" value=\"\" />\n      <option name=\"SEARCH_ACTIVITY_IN_GLOBAL_SCOPE\" value=\"false\" />\n      <option name=\"SKIP_ACTIVITY_VALIDATION\" value=\"false\" />\n      <method v=\"2\">\n        <option name=\"Android.Gradle.BeforeRunTask\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <configuration default=\"true\" type=\"Application\" factoryName=\"Application\">\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$\" />\n      <method v=\"2\">\n        <option name=\"Make\" enabled=\"true\" />\n      </method>\n    </configuration>\n    <configuration default=\"true\" type=\"TestNG\">\n      <option name=\"TEST_OBJECT\" value=\"CLASS\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$MODULE_DIR$\" />\n      <properties />\n      <listeners />\n      <method v=\"2\">\n        <option name=\"Make\" enabled=\"true\" />\n      </method>\n    </configuration>\n  </component>\n  <component name=\"SvnConfiguration\">\n    <configuration />\n  </component>\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"8fe50a6d-6717-4ae5-bac9-9d36fc0e6370\" name=\"Default Changelist\" comment=\"\" />\n      <created>1603108013542</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1603108013542</updated>\n    </task>\n    <task id=\"LOCAL-00001\" summary=\"demo-user registration\">\n      <created>1603130950150</created>\n      <option name=\"number\" value=\"00001\" />\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1603130950150</updated>\n    </task>\n    <task id=\"LOCAL-00002\" summary=\"demo-user registration\">\n      <created>1603134278504</created>\n      <option name=\"number\" value=\"00002\" />\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1603134278504</updated>\n    </task>\n    <task id=\"LOCAL-00003\" summary=\"Registration + Login\">\n      <created>1603207811091</created>\n      <option name=\"number\" value=\"00003\" />\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1603207811091</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"4\" />\n    <servers />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State>\n              <option name=\"FILTERS\">\n                <map>\n                  <entry key=\"branch\">\n                    <value>\n                      <list>\n                        <option value=\"master\" />\n                      </list>\n                    </value>\n                  </entry>\n                </map>\n              </option>\n            </State>\n          </value>\n        </entry>\n      </map>\n    </option>\n    <option name=\"oldMeFiltersMigrated\" value=\"true\" />\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <MESSAGE value=\"demo-user registration\" />\n    <MESSAGE value=\"Registration + Login\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"Registration + Login\" />\n  </component>\n  <component name=\"WindowStateProjectService\">\n    <state x=\"391\" y=\"104\" key=\"#2facezz\" timestamp=\"1603134038510\">\n      <screen x=\"0\" y=\"23\" width=\"1680\" height=\"965\" />\n    </state>\n    <state x=\"391\" y=\"104\" key=\"#2facezz/0.23.1680.965@0.23.1680.965\" timestamp=\"1603134038510\" />\n    <state x=\"450\" y=\"101\" key=\"#app\" timestamp=\"1603133996423\">\n      <screen x=\"0\" y=\"23\" width=\"1680\" height=\"965\" />\n    </state>\n    <state x=\"450\" y=\"101\" key=\"#app/0.23.1680.965@0.23.1680.965\" timestamp=\"1603133996423\" />\n    <state x=\"709\" y=\"403\" key=\"#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog\" timestamp=\"1603133453107\">\n      <screen x=\"0\" y=\"23\" width=\"1680\" height=\"966\" />\n    </state>\n    <state x=\"709\" y=\"403\" key=\"#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog/0.23.1680.966@0.23.1680.966\" timestamp=\"1603133453107\" />\n    <state x=\"1280\" y=\"-1057\" width=\"1280\" height=\"1057\" key=\"AndroidCreateResourceFileDialog\" timestamp=\"1603212716097\">\n      <screen x=\"0\" y=\"-1057\" width=\"2560\" height=\"1057\" />\n    </state>\n    <state x=\"1280\" y=\"-1057\" width=\"1280\" height=\"1057\" key=\"AndroidCreateResourceFileDialog/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057\" timestamp=\"1603212716097\" />\n    <state x=\"0\" y=\"-1057\" width=\"1280\" height=\"1057\" key=\"CommitChangelistDialog2\" timestamp=\"1603207810895\">\n      <screen x=\"0\" y=\"-1057\" width=\"2560\" height=\"1057\" />\n    </state>\n    <state x=\"574\" y=\"148\" key=\"CommitChangelistDialog2/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160\" timestamp=\"1603130949153\" />\n    <state x=\"0\" y=\"-1057\" width=\"1280\" height=\"1057\" key=\"CommitChangelistDialog2/0.-1057.2560.1057/0.23.1680.965@0.-1057.2560.1057\" timestamp=\"1603207810895\" />\n    <state x=\"502\" y=\"142\" key=\"CommitChangelistDialog2/0.23.1680.965@0.23.1680.965\" timestamp=\"1603134278224\" />\n    <state x=\"0\" y=\"-1057\" width=\"1280\" height=\"1057\" key=\"DiffContextDialog\" timestamp=\"1603215863187\">\n      <screen x=\"0\" y=\"-1057\" width=\"2560\" height=\"1057\" />\n    </state>\n    <state x=\"0\" y=\"-1057\" width=\"1280\" height=\"1057\" key=\"DiffContextDialog/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057\" timestamp=\"1603215863187\" />\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.0.bottom\" timestamp=\"1603216355642\">\n      <screen x=\"0\" y=\"-1057\" width=\"2560\" height=\"983\" />\n    </state>\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.0.bottom/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057\" timestamp=\"1603216056114\" />\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.0.bottom/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983\" timestamp=\"1603216355642\" />\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.0.center\" timestamp=\"1603216355639\">\n      <screen x=\"0\" y=\"-1057\" width=\"2560\" height=\"983\" />\n    </state>\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.0.center/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057\" timestamp=\"1603216056113\" />\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.0.center/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983\" timestamp=\"1603216355639\" />\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.0.left\" timestamp=\"1603216355639\">\n      <screen x=\"0\" y=\"-1057\" width=\"2560\" height=\"983\" />\n    </state>\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.0.left/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057\" timestamp=\"1603216056112\" />\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.0.left/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983\" timestamp=\"1603216355639\" />\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.0.right\" timestamp=\"1603216355639\">\n      <screen x=\"0\" y=\"-1057\" width=\"2560\" height=\"983\" />\n    </state>\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.0.right/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057\" timestamp=\"1603216056113\" />\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.0.right/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983\" timestamp=\"1603216355639\" />\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.1.bottom\" timestamp=\"1603216355642\">\n      <screen x=\"0\" y=\"-1057\" width=\"2560\" height=\"983\" />\n    </state>\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.1.bottom/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983\" timestamp=\"1603216355642\" />\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.1.center\" timestamp=\"1603216355642\">\n      <screen x=\"0\" y=\"-1057\" width=\"2560\" height=\"983\" />\n    </state>\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.1.center/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983\" timestamp=\"1603216355642\" />\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.1.left\" timestamp=\"1603216355642\">\n      <screen x=\"0\" y=\"-1057\" width=\"2560\" height=\"983\" />\n    </state>\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.1.left/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983\" timestamp=\"1603216355642\" />\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.1.right\" timestamp=\"1603216355642\">\n      <screen x=\"0\" y=\"-1057\" width=\"2560\" height=\"983\" />\n    </state>\n    <state width=\"619\" height=\"358\" key=\"GridCell.Tab.1.right/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983\" timestamp=\"1603216355642\" />\n    <state x=\"398\" y=\"144\" key=\"SettingsEditor\" timestamp=\"1603133907296\">\n      <screen x=\"0\" y=\"23\" width=\"1680\" height=\"965\" />\n    </state>\n    <state x=\"398\" y=\"144\" key=\"SettingsEditor/0.23.1680.965@0.23.1680.965\" timestamp=\"1603133907296\" />\n    <state x=\"560\" y=\"427\" key=\"VCS.ChangelistChooser\" timestamp=\"1603134385699\">\n      <screen x=\"0\" y=\"23\" width=\"1680\" height=\"965\" />\n    </state>\n    <state x=\"560\" y=\"427\" key=\"VCS.ChangelistChooser/0.23.1680.965@0.23.1680.965\" timestamp=\"1603134385699\" />\n    <state x=\"1280\" y=\"-1057\" width=\"1280\" height=\"1057\" key=\"Vcs.Push.Dialog.v2\" timestamp=\"1603207826128\">\n      <screen x=\"0\" y=\"-1057\" width=\"2560\" height=\"1057\" />\n    </state>\n    <state x=\"552\" y=\"312\" key=\"Vcs.Push.Dialog.v2/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160\" timestamp=\"1603131656235\" />\n    <state x=\"1280\" y=\"-1057\" width=\"1280\" height=\"1057\" key=\"Vcs.Push.Dialog.v2/0.-1057.2560.1057/0.23.1680.965@0.-1057.2560.1057\" timestamp=\"1603207826128\" />\n    <state x=\"481\" y=\"266\" key=\"Vcs.Push.Dialog.v2/0.23.1680.965@0.23.1680.965\" timestamp=\"1603134769958\" />\n    <state x=\"776\" y=\"357\" key=\"chooseDestDirectoryDialog\" timestamp=\"1603108193216\">\n      <screen x=\"0\" y=\"0\" width=\"1920\" height=\"1160\" />\n    </state>\n    <state x=\"776\" y=\"357\" key=\"chooseDestDirectoryDialog/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160\" timestamp=\"1603108193216\" />\n    <state x=\"769\" y=\"493\" key=\"com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2\" timestamp=\"1603130463409\">\n      <screen x=\"0\" y=\"0\" width=\"1920\" height=\"1160\" />\n    </state>\n    <state x=\"769\" y=\"493\" key=\"com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160\" timestamp=\"1603130463409\" />\n    <state x=\"0\" y=\"-1057\" width=\"1280\" height=\"1057\" key=\"git4idea.merge.GitPullDialog\" timestamp=\"1603209266786\">\n      <screen x=\"0\" y=\"-1057\" width=\"2560\" height=\"1057\" />\n    </state>\n    <state x=\"705\" y=\"368\" key=\"git4idea.merge.GitPullDialog/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160\" timestamp=\"1603131616099\" />\n    <state x=\"0\" y=\"-1057\" width=\"1280\" height=\"1057\" key=\"git4idea.merge.GitPullDialog/0.-1057.2560.1057/0.23.1680.965@0.-1057.2560.1057\" timestamp=\"1603209266786\" />\n    <state x=\"617\" y=\"329\" key=\"git4idea.merge.GitPullDialog/0.23.1680.965@0.23.1680.965\" timestamp=\"1603134795253\" />\n    <state x=\"666\" y=\"427\" key=\"git4idea.remote.GitConfigureRemotesDialog\" timestamp=\"1603134725932\">\n      <screen x=\"0\" y=\"23\" width=\"1680\" height=\"965\" />\n    </state>\n    <state x=\"761\" y=\"486\" key=\"git4idea.remote.GitConfigureRemotesDialog/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160\" timestamp=\"1603130849778\" />\n    <state x=\"666\" y=\"427\" key=\"git4idea.remote.GitConfigureRemotesDialog/0.23.1680.965@0.23.1680.965\" timestamp=\"1603134725932\" />\n  </component>\n  <component name=\"XDebuggerManager\">\n    <breakpoint-manager>\n      <breakpoints>\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"java-line\">\n          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java</url>\n          <line>97</line>\n          <option name=\"timeStamp\" value=\"4\" />\n        </line-breakpoint>\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"java-line\">\n          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java</url>\n          <line>120</line>\n          <option name=\"timeStamp\" value=\"5\" />\n        </line-breakpoint>\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"java-line\">\n          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java</url>\n          <line>101</line>\n          <option name=\"timeStamp\" value=\"6\" />\n        </line-breakpoint>\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"java-line\">\n          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/DashboardActivity.java</url>\n          <line>22</line>\n          <option name=\"timeStamp\" value=\"7\" />\n        </line-breakpoint>\n      </breakpoints>\n    </breakpoint-manager>\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/workspace.xml	(revision 62d0c30cf0430523feb34a0382967ce3afe39f08)
++++ .idea/workspace.xml	(date 1603301988000)
+@@ -34,72 +34,32 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="8fe50a6d-6717-4ae5-bac9-9d36fc0e6370" name="Default Changelist" comment="">
+-      <change afterPath="$PROJECT_DIR$/.idea/assetWizardSettings.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_annotation_annotation_experimental_1_0_0_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_asynclayoutinflater_asynclayoutinflater_1_0_0_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_documentfile_documentfile_1_0_0_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_legacy_legacy_support_core_ui_1_0_0_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_legacy_legacy_support_core_utils_1_0_0_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_legacy_legacy_support_v4_1_0_0_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_media_media_1_0_0_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_print_print_1_0_0_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_slidingpanelayout_slidingpanelayout_1_0_0_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_swiperefreshlayout_swiperefreshlayout_1_0_0_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_auth_19_4_0_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_common_19_3_1_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_database_19_5_0_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_database_collection_17_0_1_aar.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/HomeFragment.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/ProfileFragment.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/UsersFragment.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable-anydpi/ic_home_black.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable-anydpi/ic_profile_black.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable-anydpi/ic_users_black.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/ic_home_black.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/ic_users_black.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable-mdpi/ic_home_black.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable-mdpi/ic_profile_black.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable-mdpi/ic_users_black.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable-xhdpi/ic_home_black.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable-xhdpi/ic_profile_black.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable-xhdpi/ic_users_black.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable-xxhdpi/ic_home_black.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable-xxhdpi/ic_users_black.png" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_home.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_profile.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_users.xml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/menu/menu_nav.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/LoginActivity.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/ProfileActivity.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_login.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_profile.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/app/src/main/res/menu/menu_main.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.bin" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.lock" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/6.5/fileContent/fileContent.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/fileContent/fileContent.lock" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.bin" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.lock" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/6.5/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/fileHashes/resourceHashesCache.bin" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/classAnalysis.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/classAnalysis.bin" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/jarAnalysis.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/jarAnalysis.bin" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/javaCompile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/javaCompile.lock" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.gradle/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/sha1-checksums.bin" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_appcompat_appcompat_1_1_0_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_appcompat_appcompat_1_2_0_aar.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_appcompat_appcompat_resources_1_1_0_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_appcompat_appcompat_resources_1_2_0_aar.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_constraintlayout_constraintlayout_1_1_3_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_constraintlayout_constraintlayout_2_0_2_aar.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_constraintlayout_constraintlayout_solver_1_1_3.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_constraintlayout_constraintlayout_solver_2_0_2.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_core_core_1_1_0_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_core_core_1_3_1_aar.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_core_1_2_0_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_core_1_3_0_aar.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_espresso_espresso_core_3_2_0_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_espresso_espresso_core_3_3_0_aar.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_espresso_espresso_idling_resource_3_2_0_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_espresso_espresso_idling_resource_3_3_0_aar.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_ext_junit_1_1_1_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_ext_junit_1_1_2_aar.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_monitor_1_2_0_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_monitor_1_3_0_aar.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_runner_1_2_0_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__androidx_test_runner_1_3_0_aar.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_android_material_material_1_1_0_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_android_material_material_1_2_1_aar.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_auto_value_auto_value_annotations_1_6_5.xml" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_auth_19_2_0_aar.xml" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_common_19_3_0_aar.xml" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__net_sf_kxml_kxml2_2_3_0.xml" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/modules/app/2facezz_App.app.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/app/2facezz_App.app.iml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/ProfileActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/DashboardActivity.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/DashboardActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/DashboardActivity.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/MainActivity.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_profile.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_dashboard.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_register.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_register.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+@@ -107,7 +67,7 @@
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+     <option name="LAST_RESOLUTION" value="IGNORE" />
+   </component>
+-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[Pixel_3a_API_30_x86]" />
++  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[Nexus_5_API_29]" />
+   <component name="ExternalProjectsData">
+     <projectState path="$PROJECT_DIR$">
+       <ProjectState />
+@@ -154,12 +114,18 @@
+   <component name="PropertiesComponent">
+     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
++    <property name="DeviceAndSnapshotComboBoxAction.selectedDevice" value="Nexus_5_API_29" />
++    <property name="DeviceAndSnapshotComboBoxAction.selectionTime" value="2020-10-21T17:20:00.550Z" />
+     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
++    <property name="android-custom-view/Users/dimovdarian/.gradle/caches/modules-2/files-2.1/com.google.android.material/material/1.2.1/37d55d5141066b3d118d24232fa7025b65eb3a74/material-1.2.1-sources.jar!/com/google/android/material/button/MaterialButton.java_SELECTED" value="MaterialButton" />
++    <property name="android-custom-view/Users/dimovdarian/Library/Android/sdk/sources/android-29/android/view/View.java_SELECTED" value="View" />
+     <property name="android.sdk.path" value="$USER_HOME$/AppData/Local/Android/Sdk" />
+     <property name="last_directory_selection" value="$PROJECT_DIR$/app/src/main/res/drawable" />
+     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
++    <property name="multi-representation-preview/Users/dimovdarian/.gradle/caches/modules-2/files-2.1/com.google.android.material/material/1.2.1/37d55d5141066b3d118d24232fa7025b65eb3a74/material-1.2.1-sources.jar!/com/google/android/material/button/MaterialButton.java_selected" value="Custom views" />
++    <property name="multi-representation-preview/Users/dimovdarian/Library/Android/sdk/sources/android-29/android/view/View.java_selected" value="Custom views" />
+     <property name="settings.editor.selected.configurable" value="gradle.compiler" />
+   </component>
+   <component name="RecentsManager">
+@@ -316,7 +282,21 @@
+       <option name="project" value="LOCAL" />
+       <updated>1603207811091</updated>
+     </task>
+-    <option name="localTasksCounter" value="4" />
++    <task id="LOCAL-00004" summary="Registration + Login">
++      <created>1603298189107</created>
++      <option name="number" value="00004" />
++      <option name="presentableId" value="LOCAL-00004" />
++      <option name="project" value="LOCAL" />
++      <updated>1603298189108</updated>
++    </task>
++    <task id="LOCAL-00005" summary="Registration + Login">
++      <created>1603298220012</created>
++      <option name="number" value="00005" />
++      <option name="presentableId" value="LOCAL-00005" />
++      <option name="project" value="LOCAL" />
++      <updated>1603298220012</updated>
++    </task>
++    <option name="localTasksCounter" value="6" />
+     <servers />
+   </component>
+   <component name="Vcs.Log.Tabs.Properties">
+@@ -361,56 +341,77 @@
+       <screen x="0" y="23" width="1680" height="966" />
+     </state>
+     <state x="709" y="403" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog/0.23.1680.966@0.23.1680.966" timestamp="1603133453107" />
++    <state x="1380" y="123" width="1080" height="783" key="AVDManager" timestamp="1603300598608">
++      <screen x="0" y="23" width="2560" height="983" />
++    </state>
++    <state x="1380" y="123" width="1080" height="783" key="AVDManager/0.23.2560.983@0.23.2560.983" timestamp="1603300598608" />
+     <state x="1280" y="-1057" width="1280" height="1057" key="AndroidCreateResourceFileDialog" timestamp="1603212716097">
+       <screen x="0" y="-1057" width="2560" height="1057" />
+     </state>
+     <state x="1280" y="-1057" width="1280" height="1057" key="AndroidCreateResourceFileDialog/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603212716097" />
+-    <state x="0" y="-1057" width="1280" height="1057" key="CommitChangelistDialog2" timestamp="1603207810895">
+-      <screen x="0" y="-1057" width="2560" height="1057" />
++    <state x="0" y="23" width="1280" height="1057" key="CommitChangelistDialog2" timestamp="1603298219888">
++      <screen x="0" y="23" width="2560" height="983" />
+     </state>
+     <state x="574" y="148" key="CommitChangelistDialog2/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603130949153" />
+     <state x="0" y="-1057" width="1280" height="1057" key="CommitChangelistDialog2/0.-1057.2560.1057/0.23.1680.965@0.-1057.2560.1057" timestamp="1603207810895" />
+     <state x="502" y="142" key="CommitChangelistDialog2/0.23.1680.965@0.23.1680.965" timestamp="1603134278224" />
++    <state x="0" y="23" key="CommitChangelistDialog2/0.23.2560.983@0.23.2560.983" timestamp="1603298219888" />
+     <state x="0" y="-1057" width="1280" height="1057" key="DiffContextDialog" timestamp="1603215863187">
+       <screen x="0" y="-1057" width="2560" height="1057" />
+     </state>
+     <state x="0" y="-1057" width="1280" height="1057" key="DiffContextDialog/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603215863187" />
+-    <state width="619" height="358" key="GridCell.Tab.0.bottom" timestamp="1603216355642">
+-      <screen x="0" y="-1057" width="2560" height="983" />
++    <state width="619" height="328" key="GridCell.Tab.0.bottom" timestamp="1603301770476">
++      <screen x="0" y="23" width="2560" height="983" />
+     </state>
+     <state width="619" height="358" key="GridCell.Tab.0.bottom/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603216056114" />
+     <state width="619" height="358" key="GridCell.Tab.0.bottom/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355642" />
+-    <state width="619" height="358" key="GridCell.Tab.0.center" timestamp="1603216355639">
+-      <screen x="0" y="-1057" width="2560" height="983" />
++    <state width="619" height="328" key="GridCell.Tab.0.bottom/0.23.2560.983@0.23.2560.983" timestamp="1603301770476" />
++    <state width="619" height="328" key="GridCell.Tab.0.center" timestamp="1603301770476">
++      <screen x="0" y="23" width="2560" height="983" />
+     </state>
+     <state width="619" height="358" key="GridCell.Tab.0.center/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603216056113" />
+     <state width="619" height="358" key="GridCell.Tab.0.center/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355639" />
+-    <state width="619" height="358" key="GridCell.Tab.0.left" timestamp="1603216355639">
+-      <screen x="0" y="-1057" width="2560" height="983" />
++    <state width="619" height="328" key="GridCell.Tab.0.center/0.23.2560.983@0.23.2560.983" timestamp="1603301770476" />
++    <state width="619" height="328" key="GridCell.Tab.0.left" timestamp="1603301770475">
++      <screen x="0" y="23" width="2560" height="983" />
+     </state>
+     <state width="619" height="358" key="GridCell.Tab.0.left/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603216056112" />
+     <state width="619" height="358" key="GridCell.Tab.0.left/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355639" />
+-    <state width="619" height="358" key="GridCell.Tab.0.right" timestamp="1603216355639">
+-      <screen x="0" y="-1057" width="2560" height="983" />
++    <state width="619" height="328" key="GridCell.Tab.0.left/0.23.2560.983@0.23.2560.983" timestamp="1603301770475" />
++    <state width="619" height="328" key="GridCell.Tab.0.right" timestamp="1603301770476">
++      <screen x="0" y="23" width="2560" height="983" />
+     </state>
+     <state width="619" height="358" key="GridCell.Tab.0.right/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603216056113" />
+     <state width="619" height="358" key="GridCell.Tab.0.right/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355639" />
+-    <state width="619" height="358" key="GridCell.Tab.1.bottom" timestamp="1603216355642">
+-      <screen x="0" y="-1057" width="2560" height="983" />
++    <state width="619" height="328" key="GridCell.Tab.0.right/0.23.2560.983@0.23.2560.983" timestamp="1603301770476" />
++    <state width="619" height="328" key="GridCell.Tab.1.bottom" timestamp="1603301770478">
++      <screen x="0" y="23" width="2560" height="983" />
+     </state>
+     <state width="619" height="358" key="GridCell.Tab.1.bottom/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355642" />
+-    <state width="619" height="358" key="GridCell.Tab.1.center" timestamp="1603216355642">
+-      <screen x="0" y="-1057" width="2560" height="983" />
++    <state width="619" height="328" key="GridCell.Tab.1.bottom/0.23.2560.983@0.23.2560.983" timestamp="1603301770478" />
++    <state width="619" height="328" key="GridCell.Tab.1.center" timestamp="1603301770477">
++      <screen x="0" y="23" width="2560" height="983" />
+     </state>
+     <state width="619" height="358" key="GridCell.Tab.1.center/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355642" />
+-    <state width="619" height="358" key="GridCell.Tab.1.left" timestamp="1603216355642">
+-      <screen x="0" y="-1057" width="2560" height="983" />
++    <state width="619" height="328" key="GridCell.Tab.1.center/0.23.2560.983@0.23.2560.983" timestamp="1603301770477" />
++    <state width="619" height="328" key="GridCell.Tab.1.left" timestamp="1603301770477">
++      <screen x="0" y="23" width="2560" height="983" />
+     </state>
+     <state width="619" height="358" key="GridCell.Tab.1.left/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355642" />
+-    <state width="619" height="358" key="GridCell.Tab.1.right" timestamp="1603216355642">
+-      <screen x="0" y="-1057" width="2560" height="983" />
++    <state width="619" height="328" key="GridCell.Tab.1.left/0.23.2560.983@0.23.2560.983" timestamp="1603301770477" />
++    <state width="619" height="328" key="GridCell.Tab.1.right" timestamp="1603301770477">
++      <screen x="0" y="23" width="2560" height="983" />
+     </state>
+     <state width="619" height="358" key="GridCell.Tab.1.right/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355642" />
++    <state width="619" height="328" key="GridCell.Tab.1.right/0.23.2560.983@0.23.2560.983" timestamp="1603301770477" />
++    <state x="512" y="111" key="MergeDialog" timestamp="1603298323710">
++      <screen x="0" y="23" width="2560" height="983" />
++    </state>
++    <state x="512" y="111" key="MergeDialog/0.23.2560.983@0.23.2560.983" timestamp="1603298323710" />
++    <state x="1549" y="283" key="MultipleFileMergeDialog" timestamp="1603298427196">
++      <screen x="0" y="23" width="2560" height="983" />
++    </state>
++    <state x="1549" y="283" key="MultipleFileMergeDialog/0.23.2560.983@0.23.2560.983" timestamp="1603298427196" />
+     <state x="398" y="144" key="SettingsEditor" timestamp="1603133907296">
+       <screen x="0" y="23" width="1680" height="965" />
+     </state>
+@@ -429,16 +430,22 @@
+       <screen x="0" y="0" width="1920" height="1160" />
+     </state>
+     <state x="776" y="357" key="chooseDestDirectoryDialog/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603108193216" />
+-    <state x="769" y="493" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1603130463409">
+-      <screen x="0" y="0" width="1920" height="1160" />
++    <state x="1380" y="123" width="1080" height="783" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1603300958589">
++      <screen x="0" y="23" width="2560" height="983" />
++    </state>
++    <state x="1380" y="123" width="1080" height="783" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.23.2560.983@0.23.2560.983" timestamp="1603300958589" />
++    <state x="1025" y="441" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1603301988189">
++      <screen x="0" y="23" width="2560" height="983" />
+     </state>
+     <state x="769" y="493" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603130463409" />
+-    <state x="0" y="-1057" width="1280" height="1057" key="git4idea.merge.GitPullDialog" timestamp="1603209266786">
+-      <screen x="0" y="-1057" width="2560" height="1057" />
++    <state x="1025" y="441" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.23.2560.983@0.23.2560.983" timestamp="1603301988189" />
++    <state x="0" y="23" width="1280" height="1057" key="git4idea.merge.GitPullDialog" timestamp="1603301961189">
++      <screen x="0" y="23" width="2560" height="983" />
+     </state>
+     <state x="705" y="368" key="git4idea.merge.GitPullDialog/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603131616099" />
+     <state x="0" y="-1057" width="1280" height="1057" key="git4idea.merge.GitPullDialog/0.-1057.2560.1057/0.23.1680.965@0.-1057.2560.1057" timestamp="1603209266786" />
+     <state x="617" y="329" key="git4idea.merge.GitPullDialog/0.23.1680.965@0.23.1680.965" timestamp="1603134795253" />
++    <state x="0" y="23" key="git4idea.merge.GitPullDialog/0.23.2560.983@0.23.2560.983" timestamp="1603301961189" />
+     <state x="666" y="427" key="git4idea.remote.GitConfigureRemotesDialog" timestamp="1603134725932">
+       <screen x="0" y="23" width="1680" height="965" />
+     </state>
+@@ -450,25 +457,20 @@
+       <breakpoints>
+         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+           <url>file://$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java</url>
+-          <line>97</line>
+-          <option name="timeStamp" value="4" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+-          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java</url>
+-          <line>120</line>
++          <line>133</line>
+           <option name="timeStamp" value="5" />
+         </line-breakpoint>
+         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+           <url>file://$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java</url>
+-          <line>101</line>
+-          <option name="timeStamp" value="6" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+-          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/DashboardActivity.java</url>
+-          <line>22</line>
+-          <option name="timeStamp" value="7" />
++          <line>102</line>
++          <option name="timeStamp" value="10" />
+         </line-breakpoint>
+       </breakpoints>
+     </breakpoint-manager>
++    <pin-to-top-manager>
++      <pinned-members>
++        <PinnedItemInfo typeName="com.example.a2facezzapp.RegisterActivity" fieldName="mEmailInput" />
++      </pinned-members>
++    </pin-to-top-manager>
+   </component>
+ </project>
+\ No newline at end of file
