@@ -44,14 +44,15 @@
       <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/javaCompile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/javaCompile.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_21_10_2020__20_39__Default_Changelist_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_21_10_2020__20_39__Default_Changelist_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/DashboardActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/DashboardActivity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/LoginActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/LoginActivity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/ProfileActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/ProfileActivity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_profile.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_profile.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_login.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_login.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/local.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,7 +118,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="multi-representation-preview/Users/dimovdarian/.gradle/caches/modules-2/files-2.1/com.google.android.material/material/1.2.1/37d55d5141066b3d118d24232fa7025b65eb3a74/material-1.2.1-sources.jar!/com/google/android/material/button/MaterialButton.java_selected" value="Custom views" />
     <property name="multi-representation-preview/Users/dimovdarian/Library/Android/sdk/sources/android-29/android/view/View.java_selected" value="Custom views" />
-    <property name="settings.editor.selected.configurable" value="gradle.compiler" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.project.gradle" />
   </component>
   <component name="RecentsManager">
     <key name="android.template.691890977">
@@ -351,30 +352,34 @@
       <screen x="0" y="-1057" width="2560" height="1057" />
     </state>
     <state x="0" y="-1057" width="1280" height="1057" key="DiffContextDialog/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603215863187" />
-    <state width="619" height="260" key="GridCell.Tab.0.bottom" timestamp="1603380095149">
-      <screen x="0" y="23" width="1680" height="966" />
+    <state width="1720" height="320" key="GridCell.Tab.0.bottom" timestamp="1603661492449">
+      <screen x="0" y="0" width="1920" height="1160" />
     </state>
+    <state width="1720" height="320" key="GridCell.Tab.0.bottom/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603661492449" />
     <state width="619" height="358" key="GridCell.Tab.0.bottom/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603216056114" />
     <state width="619" height="358" key="GridCell.Tab.0.bottom/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355642" />
     <state width="619" height="260" key="GridCell.Tab.0.bottom/0.23.1680.966@0.23.1680.966" timestamp="1603380095149" />
     <state width="619" height="328" key="GridCell.Tab.0.bottom/0.23.2560.983@0.23.2560.983" timestamp="1603302064108" />
-    <state width="619" height="260" key="GridCell.Tab.0.center" timestamp="1603380095148">
-      <screen x="0" y="23" width="1680" height="966" />
+    <state width="1720" height="320" key="GridCell.Tab.0.center" timestamp="1603661492448">
+      <screen x="0" y="0" width="1920" height="1160" />
     </state>
+    <state width="1720" height="320" key="GridCell.Tab.0.center/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603661492448" />
     <state width="619" height="358" key="GridCell.Tab.0.center/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603216056113" />
     <state width="619" height="358" key="GridCell.Tab.0.center/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355639" />
     <state width="619" height="260" key="GridCell.Tab.0.center/0.23.1680.966@0.23.1680.966" timestamp="1603380095148" />
     <state width="619" height="328" key="GridCell.Tab.0.center/0.23.2560.983@0.23.2560.983" timestamp="1603302064107" />
-    <state width="619" height="260" key="GridCell.Tab.0.left" timestamp="1603380095148">
-      <screen x="0" y="23" width="1680" height="966" />
+    <state width="1720" height="320" key="GridCell.Tab.0.left" timestamp="1603661492448">
+      <screen x="0" y="0" width="1920" height="1160" />
     </state>
+    <state width="1720" height="320" key="GridCell.Tab.0.left/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603661492448" />
     <state width="619" height="358" key="GridCell.Tab.0.left/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603216056112" />
     <state width="619" height="358" key="GridCell.Tab.0.left/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355639" />
     <state width="619" height="260" key="GridCell.Tab.0.left/0.23.1680.966@0.23.1680.966" timestamp="1603380095148" />
     <state width="619" height="328" key="GridCell.Tab.0.left/0.23.2560.983@0.23.2560.983" timestamp="1603302064107" />
-    <state width="619" height="260" key="GridCell.Tab.0.right" timestamp="1603380095148">
-      <screen x="0" y="23" width="1680" height="966" />
+    <state width="1720" height="320" key="GridCell.Tab.0.right" timestamp="1603661492448">
+      <screen x="0" y="0" width="1920" height="1160" />
     </state>
+    <state width="1720" height="320" key="GridCell.Tab.0.right/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603661492448" />
     <state width="619" height="358" key="GridCell.Tab.0.right/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603216056113" />
     <state width="619" height="358" key="GridCell.Tab.0.right/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355639" />
     <state width="619" height="260" key="GridCell.Tab.0.right/0.23.1680.966@0.23.1680.966" timestamp="1603380095148" />
@@ -411,9 +416,10 @@
       <screen x="0" y="23" width="2560" height="983" />
     </state>
     <state x="1549" y="283" key="MultipleFileMergeDialog/0.23.2560.983@0.23.2560.983" timestamp="1603302004421" />
-    <state x="398" y="144" key="SettingsEditor" timestamp="1603133907296">
-      <screen x="0" y="23" width="1680" height="965" />
+    <state x="455" y="145" key="SettingsEditor" timestamp="1603656960898">
+      <screen x="0" y="0" width="1920" height="1160" />
     </state>
+    <state x="455" y="145" key="SettingsEditor/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603656960898" />
     <state x="398" y="144" key="SettingsEditor/0.23.1680.965@0.23.1680.965" timestamp="1603133907296" />
     <state x="560" y="427" key="VCS.ChangelistChooser" timestamp="1603134385699">
       <screen x="0" y="23" width="1680" height="965" />
@@ -450,18 +456,22 @@
     </state>
     <state x="761" y="486" key="git4idea.remote.GitConfigureRemotesDialog/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603130849778" />
     <state x="666" y="427" key="git4idea.remote.GitConfigureRemotesDialog/0.23.1680.965@0.23.1680.965" timestamp="1603134725932" />
+    <state width="876" height="182" key="javadoc.popup.new" timestamp="1603660792952">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="876" height="182" key="javadoc.popup.new/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603660792952" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java</url>
-          <line>132</line>
+          <line>133</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/RegisterActivity.java</url>
-          <line>102</line>
+          <line>103</line>
           <option name="timeStamp" value="10" />
         </line-breakpoint>
       </breakpoints>

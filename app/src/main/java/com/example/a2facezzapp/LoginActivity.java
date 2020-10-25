@@ -4,8 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.Menu;
@@ -13,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
     //views
     EditText mEmailInput, mPasswordInput;
     Button mLoginBtn;
-    TextView noAccountTV;
+    TextView noAccountTV, mRecoverPasswordTV;
 
     //firebase
     private FirebaseAuth mAuth;
@@ -55,6 +59,7 @@ public class LoginActivity extends AppCompatActivity {
         mPasswordInput = findViewById(R.id.passwordInput);
         mLoginBtn = findViewById(R.id.loginBtn);
         noAccountTV = findViewById(R.id.no_accountTV);
+        mRecoverPasswordTV = findViewById(R.id.recoverPasswordTV);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -84,6 +89,76 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
                 finish();
+            }
+        });
+
+        //recover password
+        mRecoverPasswordTV.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v){
+                showRecoverPasswordDialog();
+            }
+        });
+    }
+
+    private void showRecoverPasswordDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Recover password");
+
+        //set layout linear
+        LinearLayout linearLayout = new LinearLayout(this);
+
+        //views to set in dialog
+        final EditText emailInput = new EditText(this);
+        emailInput.setHint("Email");
+        emailInput.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        /*set the min width of EditView to fit a text of n 'M' letters regardless of the actual text extension and text size*/
+        emailInput.setMinEms(16);
+
+        linearLayout.addView(emailInput);
+        linearLayout.setPadding(10, 10, 10, 10);
+
+        builder.setView(linearLayout);
+
+        //button recover
+        builder.setPositiveButton("Recover", new DialogInterface.OnClickListener() {
+           @Override
+           public void onClick(DialogInterface dialog, int which){
+                //input email
+               String email = emailInput.getText().toString().trim();
+               beginRecovery(email);
+           }
+        });
+
+        //button cancel
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which){
+                //dismiss dialog
+                dialog.dismiss();
+            }
+        });
+
+        //show dialog
+        builder.create().show();
+    }
+
+    private void beginRecovery(String email) {
+        mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()) {
+                    Toast.makeText(LoginActivity.this, "Email sent", Toast.LENGTH_SHORT).show();
+                } else{
+                    Toast.makeText(LoginActivity.this, "Failed...", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } ).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                //show error message
+                Toast.makeText(LoginActivity.this, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

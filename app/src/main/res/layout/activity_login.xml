@@ -62,6 +62,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+    <!--TextView: Recover Password-->
+    <TextView
+        android:id="@+id/recoverPasswordTV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="Forgot Password?"
+        android:layout_below="@+id/loginBtn"
+        android:textColor="@color/black"
+        />
+
     <!--Click and go to register-->
     <TextView
         android:id="@+id/no_accountTV"
@@ -69,7 +80,8 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:text="You don't have an account? Register"
-        android:layout_below="@id/loginBtn"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
         android:layout_marginTop="30dp"
         android:textColor="@color/black"
         />
