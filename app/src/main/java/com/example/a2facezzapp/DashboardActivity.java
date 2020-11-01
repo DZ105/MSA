@@ -34,7 +34,6 @@ public class DashboardActivity extends AppCompatActivity {
 
         //init
         firebaseAuth = FirebaseAuth.getInstance();
-        mProfileTV = findViewById(R.id.profileTV);
 
         //bottom navigator
         BottomNavigationView navigationView = findViewById(R.id.navigation);
@@ -91,7 +90,6 @@ public class DashboardActivity extends AppCompatActivity {
         if(user != null) {
             //if it is sign in stay here
             //set email of logged in user
-            mProfileTV.setText(user.getEmail());
         }else {
             //if it is not sign in, go to main activity
             startActivity(new Intent(DashboardActivity.this, MainActivity.class));

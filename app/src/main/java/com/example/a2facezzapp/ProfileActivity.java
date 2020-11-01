@@ -37,7 +37,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         //initialize
         firebaseAuth = FirebaseAuth.getInstance();
-        mProfileTV = findViewById(R.id.profileTV);
 
         //bottom navigator
         BottomNavigationView navigationView = findViewById(R.id.navigation);
@@ -94,7 +93,6 @@ public class ProfileActivity extends AppCompatActivity {
         if(user != null) {
             //if it is sign in stay here
             //set email of logged in user
-            mProfileTV.setText(user.getEmail());
         }else {
             //if it is not sign in, go to main activity
             startActivity(new Intent(ProfileActivity.this, MainActivity.class));

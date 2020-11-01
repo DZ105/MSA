@@ -24,8 +24,9 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="/private/var/folders/x2/vgnzt0w53z15kvq3hhnl62cr0000gn/T/baseline_supervisor_account_24.xml" />
-                                                <entry key="opacityPercent" value="60" />
+                                                <entry key="imagePath" value="/private/var/folders/x2/vgnzt0w53z15kvq3hhnl62cr0000gn/T/baseline_add_a_photo_24.xml" />
+                                                <entry key="opacityPercent" value="80" />
+                                                <entry key="paddingPercent" value="35" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -36,7 +37,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="file:$USER_HOME$/Library/Android/sdk/icons/material/materialicons/supervisor_account/baseline_supervisor_account_24.xml" />
+                                                <entry key="url" value="file:$USER_HOME$/Library/Android/sdk/icons/material/materialicons/add_a_photo/baseline_add_a_photo_24.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -68,7 +69,8 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_users_black" />
+                                      <entry key="outputName" value="ic_add_image" />
+                                      <entry key="theme" value="HOLO_DARK" />
                                     </map>
                                   </option>
                                 </PersistentState>
