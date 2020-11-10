@@ -1,16 +1,28 @@
 package com.example.a2facezzapp;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,8 +47,22 @@ public class ProfileFragment extends Fragment {
     DatabaseReference databaseReference;
 
     //view from xml
-    ImageView avatarTv;
+    ImageView avatarIv, coverIv;
     TextView nameTv, emailTv, phoneTv;
+    FloatingActionButton fab;
+
+    //permissions constants
+    private static final int CAMERA_REQUEST_CODE = 100;
+    private static final int STORAGE_REQUEST_CODE = 200;
+    private static final int IMAGE_PICK_GALLERY_CODE = 300;
+    private static final int IMAGE_PICK_CAMERA_CODE = 400;
+
+    //arrays of permissions to be requested
+    String cameraPermissions[];
+    String storagePermissions[];
+
+    //uri of picked image
+    Uri image_uri;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -91,11 +117,17 @@ public class ProfileFragment extends Fragment {
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference("Users");
 
+        //init arrats of permissions
+        cameraPermissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        storagePermissions = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
         //init views
-        avatarTv = view.findViewById(R.id.avatarTv);
+        avatarIv = view.findViewById(R.id.avatarTv);
+        coverIv = view.findViewById(R.id.coverIv);
         nameTv = view.findViewById(R.id.nameTv);
         emailTv = view.findViewById(R.id.emailTv);
         phoneTv = view.findViewById(R.id.phoneTv);
+        fab = view.findViewById(R.id.fab);
 
         Query query = databaseReference.orderByChild("email").equalTo(user.getEmail());
         query.addValueEventListener(new ValueEventListener() {
@@ -108,23 +140,36 @@ public class ProfileFragment extends Fragment {
                     String email = "" + ds.child("email").getValue();
                     String avatar = "" + ds.child("image").getValue();
                     String phone = "" + ds.child("phone").getValue();
+                    String cover = "" + ds.child("cover").getValue();
 
                     //set data
                     nameTv.setText(name);
                     emailTv.setText(email);
                     phoneTv.setText(phone);
+
                     try {
                         //if image is received then set
                         if (avatar.isEmpty()) {
-                            Picasso.get().load(R.drawable.ic_add_image).into(avatarTv);
+                            Picasso.get().load(R.drawable.ic_default_img_white).into(avatarIv);
                         } else {
-                            Picasso.get().load(avatar).into(avatarTv);
+                            Picasso.get().load(avatar).into(avatarIv);
                         }
                     } catch (Exception e) {
                         //if there is an exception regarding the image then set default
-                        Picasso.get().load(R.drawable.ic_add_image).into(avatarTv);
+                        Picasso.get().load(R.drawable.ic_default_img_white).into(avatarIv);
                     }
 
+                    try {
+                        //if image is received then set
+                        if (avatar.isEmpty()) {
+                            Picasso.get().load(R.drawable.ic_default_img_white).into(coverIv);
+                        } else {
+                            Picasso.get().load(cover).into(coverIv);
+                        }
+                    } catch (Exception e) {
+                        //if there is an exception regarding the image then set default
+
+                    }
                 }
             }
 
@@ -134,7 +179,176 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        //fab button click
+        fab.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+               showEditProfileDialog();
+           }
+        });
 
         return view;
+    }
+
+    private boolean checkStoragePermission() {
+        /*check if storage permission is enabled or not
+            return true if enabled
+            return false if not enabled
+         */
+        boolean result = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+
+        return result;
+    }
+    private void requestStoragePermission() {
+        //request runtime storage permission
+        ActivityCompat.requestPermissions(getActivity(), storagePermissions, STORAGE_REQUEST_CODE);
+    }
+
+    private boolean checkCameraPermission() {
+        /*check if storage permission is enabled or not
+            return true if enabled
+            return false if not enabled
+         */
+        boolean result = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == (PackageManager.PERMISSION_GRANTED);
+        boolean result1 = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+
+        return result && result1;
+    }
+    private void requestCameraPermission() {
+        //request runtime storage permission
+        ActivityCompat.requestPermissions(getActivity(), cameraPermissions, CAMERA_REQUEST_CODE);
+    }
+
+    private void showEditProfileDialog() {
+            /*Here this dialog will contain the following options:
+                1. Edit profile pic
+                2. Edit cover pic
+                3. Edit name
+                4. Edit phone
+             */
+
+        //options which will be shown in dialog
+        String options[] = {"Edit profile picture", "Edit cover photo", "Edit name", "Edit phone"};
+        //alert dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        //set title
+        builder.setTitle("Choose action");
+        //set items to dialog
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //handle dialog items
+                if(which == 0) {
+                    //edit profile
+                    showAvatarPicDialog();
+                }else if(which == 1) {
+                    //edit cover
+                }else if(which == 2) {
+                    //edit name
+                }else if(which == 3) {
+                    //edit phone
+                }
+            }
+        });
+        //create and show dialog
+        builder.create().show();
+    }
+
+    private void showAvatarPicDialog() {
+        //show dialog containing options camera and gallery to pick a photo
+        //options which will be shown in dialog
+        String options[] = {"Camera", "Gallery"};
+        //alert dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        //set title
+        builder.setTitle("Pick image from");
+        //set items to dialog
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //handle dialog items
+                if(which == 0) {
+                    //camera
+                    if(!checkCameraPermission()) {
+                        requestCameraPermission();
+                    }else {
+                        pickFromCamera();
+                    }
+
+                }else if(which == 1) {
+                    //gallery
+                    if(!checkStoragePermission()) {
+                        requestStoragePermission();
+                    }else {
+                        pickFromGallery();
+                    }
+                }
+            }
+        });
+        //create and show dialog
+        builder.create().show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        //this method is called when user press allow or deny from permission request dialog
+        //we will handle allow and deny cases
+
+        switch (requestCode) {
+            case CAMERA_REQUEST_CODE: {
+                //picking from camera, first check if camera and storage permissions are allowed or not
+                if(grantResults.length > 0) {
+                    boolean cameraAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    boolean writeStorageAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+
+                    if(cameraAccepted && writeStorageAccepted) {
+                        //permission
+                        pickFromCamera();
+                    } else {
+                        //permision denied
+                        Toast.makeText(getActivity(), "Please enable camera and storage permission", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+            case STORAGE_REQUEST_CODE: {
+                //picking from gallery, first check if storage permissions are allowed or not
+                if(grantResults.length > 0) {
+                    boolean writeStorageAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+
+                    if(writeStorageAccepted) {
+                        //permission
+                        pickFromGallery();
+                    } else {
+                        //permision denied
+                        Toast.makeText(getActivity(), "Please enable storage permission", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private void pickFromCamera() {
+        //intent of picking image from device camera
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.TITLE, "Temp pic");
+        values.put(MediaStore.Images.Media.DESCRIPTION, "Description pic");
+        
+        //put image uri
+        image_uri = getActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+        //intent to start camera
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, image_uri);
+        startActivityForResult(cameraIntent, IMAGE_PICK_CAMERA_CODE);
+    }
+
+    private void pickFromGallery() {
+        //pick from gallery
+
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK);
+        galleryIntent.setType("image/*");
+        startActivityForResult(galleryIntent, IMAGE_PICK_GALLERY_CODE);
     }
 }
