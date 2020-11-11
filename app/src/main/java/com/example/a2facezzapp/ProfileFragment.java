@@ -10,18 +10,25 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,7 +38,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
+
+import java.util.HashMap;
+
+import static android.app.Activity.RESULT_OK;
+import static android.webkit.WebStorage.getInstance;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,6 +60,11 @@ public class ProfileFragment extends Fragment {
     FirebaseUser user;
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
+
+    //storage
+    StorageReference storageReference;
+    //path where images of user profile and cover will be stored
+    String storagePath = "Users_Profile_Cover_Imgs/";
 
     //view from xml
     ImageView avatarIv, coverIv;
@@ -63,6 +83,9 @@ public class ProfileFragment extends Fragment {
 
     //uri of picked image
     Uri image_uri;
+
+    //for checking profile or cover cover photo
+    String profileOrCoverPhoto;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -116,6 +139,7 @@ public class ProfileFragment extends Fragment {
         user = firebaseAuth.getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference("Users");
+        storageReference = FirebaseStorage.getInstance().getReference(); //firebase storage reference
 
         //init arrats of permissions
         cameraPermissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -161,7 +185,7 @@ public class ProfileFragment extends Fragment {
 
                     try {
                         //if image is received then set
-                        if (avatar.isEmpty()) {
+                        if (cover.isEmpty()) {
                             Picasso.get().load(R.drawable.ic_default_img_white).into(coverIv);
                         } else {
                             Picasso.get().load(cover).into(coverIv);
@@ -201,7 +225,7 @@ public class ProfileFragment extends Fragment {
     }
     private void requestStoragePermission() {
         //request runtime storage permission
-        ActivityCompat.requestPermissions(getActivity(), storagePermissions, STORAGE_REQUEST_CODE);
+        requestPermissions(storagePermissions, STORAGE_REQUEST_CODE);
     }
 
     private boolean checkCameraPermission() {
@@ -216,7 +240,7 @@ public class ProfileFragment extends Fragment {
     }
     private void requestCameraPermission() {
         //request runtime storage permission
-        ActivityCompat.requestPermissions(getActivity(), cameraPermissions, CAMERA_REQUEST_CODE);
+        requestPermissions(cameraPermissions, CAMERA_REQUEST_CODE);
     }
 
     private void showEditProfileDialog() {
@@ -240,16 +264,76 @@ public class ProfileFragment extends Fragment {
                 //handle dialog items
                 if(which == 0) {
                     //edit profile
+                    profileOrCoverPhoto = "image";
                     showAvatarPicDialog();
                 }else if(which == 1) {
                     //edit cover
+                    profileOrCoverPhoto = "cover";
+                    showAvatarPicDialog();
                 }else if(which == 2) {
                     //edit name
+                    showNamePhoneUpdateDialog("name");
                 }else if(which == 3) {
                     //edit phone
+                    showNamePhoneUpdateDialog("phone");
                 }
             }
         });
+        //create and show dialog
+        builder.create().show();
+    }
+
+    private void showNamePhoneUpdateDialog(String key) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Update " + key); //e.g. Update name
+        //set layout of dialog
+        LinearLayout linearLayout = new LinearLayout(getActivity());
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        linearLayout.setPadding(10, 10, 10, 10);
+
+        //add edit text
+        EditText editText = new EditText(getActivity());
+        editText.setHint("Enter " + key); //hint e.g. Edit name
+        linearLayout.addView(editText);
+
+        builder.setView(linearLayout);
+
+        //add buton in dialog to update
+        builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //input text from edit text
+                String value = editText.getText().toString().trim();
+                if (!TextUtils.isEmpty(value)) {
+                    HashMap<String, Object> result = new HashMap<String, Object>();
+                    result.put(key, value);
+
+                    databaseReference.child(user.getUid()).updateChildren(result)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+
+                                }
+                            });
+                } else {
+
+                }
+            }
+        });
+        //add buton in dialog to cancel
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
         //create and show dialog
         builder.create().show();
     }
@@ -310,6 +394,7 @@ public class ProfileFragment extends Fragment {
                     }
                 }
             }
+            break;
             case STORAGE_REQUEST_CODE: {
                 //picking from gallery, first check if storage permissions are allowed or not
                 if(grantResults.length > 0) {
@@ -324,9 +409,76 @@ public class ProfileFragment extends Fragment {
                     }
                 }
             }
+            break;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        //This method will be called after picking image from Camera or Gallery
+        if (resultCode == RESULT_OK) {
+            if (requestCode == IMAGE_PICK_GALLERY_CODE) {
+                //image is picked from gallery, get uri of image
+                image_uri = data.getData();
+
+                uploadProfileProfileCoverPhote(image_uri);
+            }
+
+            if (requestCode == IMAGE_PICK_CAMERA_CODE) {
+                //image is picked from gallery, get uri of image
+
+                uploadProfileProfileCoverPhote(image_uri);
+            }
         }
 
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void uploadProfileProfileCoverPhote(Uri uri) {
+        //path and name of image to be stored in firebase storage
+        String filePathAndName = storagePath + "" + profileOrCoverPhoto + "_" + user.getUid();
+
+        StorageReference storageReference2nd = storageReference.child(filePathAndName);
+        storageReference2nd.putFile(uri)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        //image is uploaded to storage
+                        Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
+                        while (!uriTask.isSuccessful());
+                        Uri downloadUri = uriTask.getResult();
+
+                        //check if image is uploaded or not and url is received
+                        if (uriTask.isSuccessful()) {
+                            //image uploaded
+                            //add/update url in user`s database
+                            HashMap<String, Object> results = new HashMap<>();
+
+                            results.put(profileOrCoverPhoto, downloadUri.toString());
+                            databaseReference.child(user.getUid()).updateChildren(results)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            //url addedd successfuly
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            //some error occured
+                                        }
+                                    });
+                        } else {
+                            //error
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        //there were some errors
+                    }
+                });
     }
 
     private void pickFromCamera() {

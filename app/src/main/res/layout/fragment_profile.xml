@@ -20,13 +20,14 @@
                 android:id="@+id/coverIv"
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
-                android:background="@color/blue2">
+                android:background="@color/blue2"
+                android:scaleType="fitXY">
 
             </ImageView>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="130dp"
                 android:orientation="horizontal"
                 android:layout_marginTop="100dp">
 
@@ -42,7 +43,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:background="#77000000">
 
                     <TextView
                         android:id="@+id/nameTv"

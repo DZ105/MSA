@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -174,8 +175,11 @@ public class LoginActivity extends AppCompatActivity {
 
                             String email = user.getEmail();
                             String uid = user.getUid();
+                            String name = user.getDisplayName();
+                            String phone = user.getPhoneNumber();
+                            Uri avatar = user.getPhotoUrl();
 
-                            HashMap<Object, String> hashMap = new HashMap<>();
+                            HashMap<String, Object> hashMap = new HashMap<>();
                             //put info in hashmap
                             hashMap.put("email", email);
                             hashMap.put("uid", uid);
@@ -189,7 +193,7 @@ public class LoginActivity extends AppCompatActivity {
                             //path to store user data named "Users"
                             DatabaseReference reference = database.getReference("Users");
                             //put data within hashmap to database
-                            reference.child(uid).setValue(hashMap);
+                           //reference.child(uid).setValue(hashMap);
                             //if user is logged in, start profile activity
                             startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
                             finish();
