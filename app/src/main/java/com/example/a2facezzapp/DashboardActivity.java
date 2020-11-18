@@ -83,7 +83,7 @@ public class DashboardActivity extends AppCompatActivity {
                             ChatListFragment fragment4 = new ChatListFragment();
                             FragmentTransaction ft4 = getSupportFragmentManager().beginTransaction();
                             ft4.replace(R.id.container, fragment4, "");
-                            ft4 .commit();
+                            ft4.commit();
                             return true;
                     }
 
@@ -95,10 +95,10 @@ public class DashboardActivity extends AppCompatActivity {
     private void checkUserStatus() {
         //get current user
         FirebaseUser user = firebaseAuth.getCurrentUser();
-        if(user != null) {
+        if (user != null) {
             //if it is sign in stay here
             //set email of logged in user
-        }else {
+        } else {
             //if it is not sign in, go to main activity
             startActivity(new Intent(DashboardActivity.this, MainActivity.class));
             finish();
@@ -112,24 +112,5 @@ public class DashboardActivity extends AppCompatActivity {
         checkUserStatus();
         super.onStart();
     }
-
-    //options menu
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    //handle menu
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if(id == R.id.action_logout) {
-            firebaseAuth.signOut();
-            checkUserStatus();
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }
+
