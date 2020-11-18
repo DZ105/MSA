@@ -69,9 +69,9 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_default_img_white" />
+                                      <entry key="outputName" value="ic_default_img" />
                                       <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="ffffff" />
+                                      <entry key="themeColor" value="2aacff" />
                                     </map>
                                   </option>
                                 </PersistentState>
