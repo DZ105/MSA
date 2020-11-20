@@ -1,4 +1,4 @@
-package com.example.a2facezzapp;
+package com.example.a2facezzapp.models;
 
 public class ModelUser {
     //use same name as in firebase db
