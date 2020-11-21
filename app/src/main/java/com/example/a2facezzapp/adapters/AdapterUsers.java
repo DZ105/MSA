@@ -59,10 +59,7 @@ public class AdapterUsers extends RecyclerView.Adapter<AdapterUsers.MyHolder> {
         }
 
         //handle item click
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
+        holder.itemView.setOnClickListener((v)-> {
                 /*Click user from user list to start chatting
                   Start activity by putting of receiver
                   we will use that uid to identify the user we are goint to chat
@@ -70,7 +67,7 @@ public class AdapterUsers extends RecyclerView.Adapter<AdapterUsers.MyHolder> {
                 Intent intent = new Intent(context, ChatActivity.class);
                 intent.putExtra("hisUID", hisUID);
                 context.startActivity(intent);
-            }
+
         });
     }
 
