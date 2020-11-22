@@ -36,25 +36,35 @@
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8fe50a6d-6717-4ae5-bac9-9d36fc0e6370" name="Default Changelist" comment="design chat">
+    <list default="true" id="8fe50a6d-6717-4ae5-bac9-9d36fc0e6370" name="Default Changelist" comment="Profile Journey">
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_android_gms_play_services_auth_api_phone_17_4_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_android_gms_play_services_basement_17_1_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_android_gms_play_services_safetynet_17_0_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_auth_20_0_0_aar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_database_19_5_1_aar.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/classAnalysis.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/classAnalysis.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/javaCompile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/javaCompile.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_android_gms_play_services_basement_17_0_0_aar.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_auth_19_4_0_aar.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_google_firebase_firebase_database_19_5_0_aar.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/app/2facezz_App.app.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/app/2facezz_App.app.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/adapters/AdapterUsers.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/adapters/AdapterUsers.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/themes.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/themes.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/ChatActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/ChatActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/local.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[Pixel_2_API_29]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -299,14 +309,7 @@
       <option name="project" value="LOCAL" />
       <updated>1603298220012</updated>
     </task>
-    <task id="LOCAL-00006" summary="design chat">
-      <created>1605901085265</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1605901085265</updated>
-    </task>
-    <option name="localTasksCounter" value="7" />
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -337,18 +340,13 @@
     <MESSAGE value="demo-user registration" />
     <MESSAGE value="Registration + Login" />
     <MESSAGE value="Profile Journey" />
-    <MESSAGE value="design chat" />
-    <option name="LAST_COMMIT_MESSAGE" value="design chat" />
+    <option name="LAST_COMMIT_MESSAGE" value="Profile Journey" />
   </component>
   <component name="WindowStateProjectService">
     <state x="391" y="104" key="#2facezz" timestamp="1603134038510">
       <screen x="0" y="23" width="1680" height="965" />
     </state>
     <state x="391" y="104" key="#2facezz/0.23.1680.965@0.23.1680.965" timestamp="1603134038510" />
-    <state x="586" y="196" key="#Inspections" timestamp="1605993670846">
-      <screen x="0" y="0" width="1920" height="1160" />
-    </state>
-    <state x="586" y="196" key="#Inspections/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1605993670846" />
     <state x="450" y="101" key="#app" timestamp="1603133996423">
       <screen x="0" y="23" width="1680" height="965" />
     </state>
@@ -365,10 +363,10 @@
       <screen x="0" y="23" width="2560" height="983" />
     </state>
     <state x="1683" y="234" key="#xdebugger.evaluate/0.23.2560.983@0.23.2560.983" timestamp="1604256429976" />
-    <state x="1035" y="118" width="810" height="924" key="AVDManager" timestamp="1605994689188">
+    <state x="1035" y="118" width="810" height="924" key="AVDManager" timestamp="1604575302169">
       <screen x="0" y="0" width="1920" height="1160" />
     </state>
-    <state x="1035" y="118" width="810" height="924" key="AVDManager/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1605994689188" />
+    <state x="1035" y="118" width="810" height="924" key="AVDManager/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1604575302169" />
     <state x="1380" y="123" width="1080" height="783" key="AVDManager/0.23.2560.983@0.23.2560.983" timestamp="1603300598608" />
     <state x="601" y="0" width="1280" height="1057" key="AndroidCreateResourceFileDialog" timestamp="1605718917636">
       <screen x="0" y="0" width="1920" height="1160" />
@@ -386,34 +384,34 @@
       <screen x="0" y="-1057" width="2560" height="1057" />
     </state>
     <state x="0" y="-1057" width="1280" height="1057" key="DiffContextDialog/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603215863187" />
-    <state width="1702" height="276" key="GridCell.Tab.0.bottom" timestamp="1605994687216">
-      <screen x="0" y="0" width="1920" height="1160" />
+    <state width="619" height="326" key="GridCell.Tab.0.bottom" timestamp="1605116410584">
+      <screen x="0" y="23" width="2560" height="983" />
     </state>
-    <state width="1702" height="276" key="GridCell.Tab.0.bottom/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1605994687216" />
+    <state width="1720" height="320" key="GridCell.Tab.0.bottom/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603661492449" />
     <state width="619" height="358" key="GridCell.Tab.0.bottom/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603216056114" />
     <state width="619" height="358" key="GridCell.Tab.0.bottom/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355642" />
     <state width="619" height="260" key="GridCell.Tab.0.bottom/0.23.1680.966@0.23.1680.966" timestamp="1603380095149" />
     <state width="619" height="326" key="GridCell.Tab.0.bottom/0.23.2560.983@0.23.2560.983" timestamp="1605116410584" />
-    <state width="1702" height="276" key="GridCell.Tab.0.center" timestamp="1605994687216">
-      <screen x="0" y="0" width="1920" height="1160" />
+    <state width="619" height="326" key="GridCell.Tab.0.center" timestamp="1605116410584">
+      <screen x="0" y="23" width="2560" height="983" />
     </state>
-    <state width="1702" height="276" key="GridCell.Tab.0.center/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1605994687216" />
+    <state width="1720" height="320" key="GridCell.Tab.0.center/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603661492448" />
     <state width="619" height="358" key="GridCell.Tab.0.center/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603216056113" />
     <state width="619" height="358" key="GridCell.Tab.0.center/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355639" />
     <state width="619" height="260" key="GridCell.Tab.0.center/0.23.1680.966@0.23.1680.966" timestamp="1603380095148" />
     <state width="619" height="326" key="GridCell.Tab.0.center/0.23.2560.983@0.23.2560.983" timestamp="1605116410584" />
-    <state width="1702" height="276" key="GridCell.Tab.0.left" timestamp="1605994687216">
-      <screen x="0" y="0" width="1920" height="1160" />
+    <state width="619" height="326" key="GridCell.Tab.0.left" timestamp="1605116410583">
+      <screen x="0" y="23" width="2560" height="983" />
     </state>
-    <state width="1702" height="276" key="GridCell.Tab.0.left/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1605994687216" />
+    <state width="1720" height="320" key="GridCell.Tab.0.left/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603661492448" />
     <state width="619" height="358" key="GridCell.Tab.0.left/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603216056112" />
     <state width="619" height="358" key="GridCell.Tab.0.left/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355639" />
     <state width="619" height="260" key="GridCell.Tab.0.left/0.23.1680.966@0.23.1680.966" timestamp="1603380095148" />
     <state width="619" height="326" key="GridCell.Tab.0.left/0.23.2560.983@0.23.2560.983" timestamp="1605116410583" />
-    <state width="1702" height="276" key="GridCell.Tab.0.right" timestamp="1605994687216">
-      <screen x="0" y="0" width="1920" height="1160" />
+    <state width="619" height="326" key="GridCell.Tab.0.right" timestamp="1605116410584">
+      <screen x="0" y="23" width="2560" height="983" />
     </state>
-    <state width="1702" height="276" key="GridCell.Tab.0.right/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1605994687216" />
+    <state width="1720" height="320" key="GridCell.Tab.0.right/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603661492448" />
     <state width="619" height="358" key="GridCell.Tab.0.right/0.-1057.2560.1057/0.23.1680.967@0.-1057.2560.1057" timestamp="1603216056113" />
     <state width="619" height="358" key="GridCell.Tab.0.right/0.-1057.2560.983/0.23.1680.1027@0.-1057.2560.983" timestamp="1603216355639" />
     <state width="619" height="260" key="GridCell.Tab.0.right/0.23.1680.966@0.23.1680.966" timestamp="1603380095148" />
@@ -459,10 +457,10 @@
       <screen x="0" y="23" width="1680" height="965" />
     </state>
     <state x="560" y="427" key="VCS.ChangelistChooser/0.23.1680.965@0.23.1680.965" timestamp="1603134385699" />
-    <state x="552" y="312" width="1280" height="1057" key="Vcs.Push.Dialog.v2" timestamp="1605901097983">
-      <screen x="0" y="0" width="1920" height="1160" />
+    <state x="1280" y="-1057" width="1280" height="1057" key="Vcs.Push.Dialog.v2" timestamp="1603207826128">
+      <screen x="0" y="-1057" width="2560" height="1057" />
     </state>
-    <state x="552" y="312" key="Vcs.Push.Dialog.v2/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1605901097983" />
+    <state x="552" y="312" key="Vcs.Push.Dialog.v2/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603131656235" />
     <state x="1280" y="-1057" width="1280" height="1057" key="Vcs.Push.Dialog.v2/0.-1057.2560.1057/0.23.1680.965@0.-1057.2560.1057" timestamp="1603207826128" />
     <state x="481" y="266" key="Vcs.Push.Dialog.v2/0.23.1680.965@0.23.1680.965" timestamp="1603134769958" />
     <state width="640" height="481" key="XDebugger.FullValuePopup" timestamp="1604256447211">
@@ -495,10 +493,10 @@
     </state>
     <state x="761" y="486" key="git4idea.remote.GitConfigureRemotesDialog/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1603130849778" />
     <state x="666" y="427" key="git4idea.remote.GitConfigureRemotesDialog/0.23.1680.965@0.23.1680.965" timestamp="1603134725932" />
-    <state width="713" height="182" key="javadoc.popup.new" timestamp="1605994600473">
+    <state width="713" height="182" key="javadoc.popup.new" timestamp="1605900566001">
       <screen x="0" y="0" width="1920" height="1160" />
     </state>
-    <state width="713" height="182" key="javadoc.popup.new/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1605994600473" />
+    <state width="713" height="182" key="javadoc.popup.new/-1920.0.1536.832/0.0.1920.1160@0.0.1920.1160" timestamp="1605900566001" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -522,11 +520,6 @@
           <url>file://$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/LoginActivity.java</url>
           <line>176</line>
           <option name="timeStamp" value="25" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/a2facezzapp/adapters/AdapterUsers.java</url>
-          <line>66</line>
-          <option name="timeStamp" value="29" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
