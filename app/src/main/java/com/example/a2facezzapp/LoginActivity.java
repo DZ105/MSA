@@ -184,6 +184,7 @@ public class LoginActivity extends AppCompatActivity {
                             hashMap.put("email", email);
                             hashMap.put("uid", uid);
                             hashMap.put("name", ""); //will add later (e.g. edit profile)
+                            hashMap.put("onlineStatus", "online");
                             hashMap.put("phone", "");
                             hashMap.put("image", "");
                             hashMap.put("cover", "");
