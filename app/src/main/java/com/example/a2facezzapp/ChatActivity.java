@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -111,20 +113,27 @@ public class ChatActivity extends AppCompatActivity {
                     //get data
                     String name ="" + ds.child("name").getValue();
                     hisImage = "" + ds.child("image").getValue();
+                    String typingStatus = "" + ds.child("typingTo").getValue();
 
-                    String onlineStatus = "" + ds.child("onlineStatus").getValue();
-
-                    //set data
-                    nameTv.setText(name);
-                    if (onlineStatus.equals("online")) {
-                        userStatusTv.setText(onlineStatus);
+                    //check typing  status
+                    if(typingStatus.equals(myUID)) {
+                        userStatusTv.setText("typing...");
                     } else {
-                        //conver timestamp to dd/mm/yyyy hh:mm am/pm
-                        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
-                        cal.setTimeInMillis(Long.parseLong(onlineStatus));
-                        String dateTime = DateFormat.format("dd/MM/yyyy hh:mm aa", cal).toString();
-                        userStatusTv.setText("Last seen @: " +dateTime);
+                        String onlineStatus = "" + ds.child("onlineStatus").getValue();
+
+                        //set data
+
+                        if (onlineStatus.equals("online")) {
+                            userStatusTv.setText(onlineStatus);
+                        } else {
+                            //conver timestamp to dd/mm/yyyy hh:mm am/pm
+                            Calendar cal = Calendar.getInstance(Locale.ENGLISH);
+                            cal.setTimeInMillis(Long.parseLong(onlineStatus));
+                            String dateTime = DateFormat.format("dd/MM/yyyy hh:mm aa", cal).toString();
+                            userStatusTv.setText("Last seen @: " +dateTime);
+                        }
                     }
+                    nameTv.setText(name);
                     try {
                         //image received successfully
                         Picasso.get().load(hisImage).placeholder(R.drawable.ic_default_img_white).into(profileTv);
@@ -154,6 +163,28 @@ public class ChatActivity extends AppCompatActivity {
                     //text not empty
                     sendMessage(message);
                 }
+            }
+        });
+
+        //check edit text change listener
+        messageEt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if(charSequence.toString().trim().length() == 0) {
+                    checkTypingStatus("noOne");
+                } else {
+                    checkTypingStatus(hisUID);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
             }
         });
 
@@ -276,6 +307,7 @@ public class ChatActivity extends AppCompatActivity {
         super.onPause();
         String timestamp = String.valueOf(System.currentTimeMillis());
         checkOnlineStatus(timestamp);
+        checkTypingStatus("noOne");
         userRefForSeen.removeEventListener(seenListener);
     }
 
@@ -290,6 +322,14 @@ public class ChatActivity extends AppCompatActivity {
         DatabaseReference dbref = FirebaseDatabase.getInstance().getReference("Users").child(myUID);
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("onlineStatus", status);
+
+        dbref.updateChildren(hashMap);
+    }
+
+    private void checkTypingStatus(String typingStatus) {
+        DatabaseReference dbref = FirebaseDatabase.getInstance().getReference("Users").child(myUID);
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("typingTo", typingStatus);
 
         dbref.updateChildren(hashMap);
     }
